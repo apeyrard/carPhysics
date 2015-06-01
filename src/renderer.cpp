@@ -2,21 +2,30 @@
 
 #include <drawable.hpp>
 
+#include <SFML/Window/Keyboard.hpp>
+
 Renderer::Renderer(int scale, int width, int height)
     : m_scale(scale)
     , m_width(width * scale)
     , m_height(height * scale)
 {
+    #if 0
     sf::ContextSettings settings;
-    settings.antialiasingLevel = 8;
+    settings.majorVersion = 3;
+    settings.minorVersion = 3;
+    settings.depthBits = 24;
+    settings.antialiasingLevel = 0;
+    m_window.create(sf::VideoMode(m_width, m_height), "NeuroCar", sf::Style::Default, settings);
+    #else
+    m_window.create(sf::VideoMode(m_width, m_height), "NeuroCar", sf::Style::Default);
+    #endif
 
-    m_window.create(sf::VideoMode(m_width, m_height), "neuroCar", sf::Style::Default, settings);
     m_window.setVerticalSyncEnabled(true);
 }
 
 Renderer::~Renderer()
 {
-    m_window.close();
+    if(m_window.isOpen()) m_window.close();
 }
 
 bool Renderer::update(std::vector<Drawable*> actorList)
@@ -26,10 +35,30 @@ bool Renderer::update(std::vector<Drawable*> actorList)
         sf::Event event;
         while(m_window.pollEvent(event))
         {
-            //treat events
-            if (event.type == sf::Event::Closed)
+            switch(event.type)
             {
-                m_window.close();
+                case sf::Event::KeyPressed:
+                {
+                    switch(event.key.code)
+                    {
+                        case sf::Keyboard::Escape:
+                        {
+                            m_window.close();
+                            break;
+                        }
+
+                        default: break;
+                    }
+                    break;
+                }
+
+                case sf::Event::Closed:
+                {
+                    m_window.close();
+                    break;
+                }
+
+                default: break;
             }
         }
 
