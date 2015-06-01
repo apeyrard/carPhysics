@@ -17,8 +17,6 @@ set (NEUROCAR_VERSION ${NEUROCAR_VERSION_MAJOR}.${NEUROCAR_VERSION_MINOR}.${NEUR
 
 set(NEUROCAR_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-
-
 # Flags
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-g -O2 -Wall -Wno-sign-compare")
@@ -54,4 +52,4 @@ if(SFML_FOUND)
     target_link_libraries(neuroCar ${SFML_LIBRARIES})
 endif()
 
-target_link_libraries(neuroCar /usr/local/lib/libBox2D.a)
+target_link_libraries(neuroCar ${PROJECT_SOURCE_DIR}/libs/libBox2D.a)
