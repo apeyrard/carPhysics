@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 
 # Useful macros
 include(${CMAKE_SOURCE_DIR}/cmake/macros.cmake)
@@ -7,6 +7,7 @@ include(${CMAKE_SOURCE_DIR}/cmake/macros.cmake)
 MACRO_ENSURE_OUT_OF_SOURCE_BUILD("Requires an out of source build.")
 
 project(neuroCar)
+
 
 set (CMAKE_BUILD_TYPE debug)
 
@@ -23,14 +24,16 @@ if (CMAKE_COMPILER_IS_GNUCXX)
     add_definitions(-std=gnu++0x)
 endif()
 
+
+### Sources ###
+
 # Include directories
-set(NEUROCAR_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(NEUROCAR_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
 include_directories(${NEUROCAR_INCLUDE_DIR})
 
 # Sources
 set (NEUROCAR_SOURCE_DIR ./src)
 set (NEUROCAR_SOURCES
-    ${NEUROCAR_SOURCE_DIR}/main.cpp
     ${NEUROCAR_SOURCE_DIR}/renderer.cpp
     ${NEUROCAR_SOURCE_DIR}/world.cpp
     ${NEUROCAR_SOURCE_DIR}/drawable.cpp
@@ -40,16 +43,70 @@ set (NEUROCAR_SOURCES
     ${NEUROCAR_SOURCE_DIR}/raycastcallback.cpp
 )
 
-# Executable
-set(EXECUTABLE_OUTPUT_PATH ${NEUROCAR_BINARY_DIR})
 
-add_executable(neuroCar ${NEUROCAR_SOURCES})
+### Extern libraries ###
 
-# libraries
-find_package(SFML 2 REQUIRED system window graphics network audio)
-if(SFML_FOUND)
-    include_directories(${SFML_INCLUDE_DIR})
-    target_link_libraries(neuroCar ${SFML_LIBRARIES})
+set(EXTERN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/libs/headers)
+set(EXTERN_STATIC_LIB_DIR ${CMAKE_SOURCE_DIR}/libs/static)
+set(NEUROCAR_EXTERN_LIBRARIES "")
+
+# Box2D
+set(EXTERN_INCLUDE_DIR_BOX2D ${EXTERN_INCLUDE_DIR}/)
+set(EXTERN_LIBRARIES_BOX2D ${EXTERN_STATIC_LIB_DIR}/Box2D/libBox2D.a)
+set(NEUROCAR_EXTERN_LIBRARIES ${NEUROCAR_EXTERN_LIBRARIES} ${EXTERN_LIBRARIES_BOX2D})
+include_directories(SYSTEM ${EXTERN_INCLUDE_DIR_BOX2D})
+
+# SFML
+set(EXTERN_INCLUDE_DIR_SFML ${EXTERN_INCLUDE_DIR}/)
+set(EXTERN_LIBRARIES_SFML
+    ${EXTERN_STATIC_LIB_DIR}/SFML/libsfml-window-s.a
+    ${EXTERN_STATIC_LIB_DIR}/SFML/libsfml-graphics-s.a
+    ${EXTERN_STATIC_LIB_DIR}/SFML/libsfml-system-s.a
+)
+set(NEUROCAR_EXTERN_LIBRARIES ${NEUROCAR_EXTERN_LIBRARIES} ${EXTERN_LIBRARIES_SFML})
+include_directories(SYSTEM ${EXTERN_INCLUDE_DIR_SFML})
+
+# xcb
+set(EXTERN_INCLUDE_DIR_XCB ${EXTERN_INCLUDE_DIR}/)
+set(EXTERN_LIBRARIES_XCB
+    ${EXTERN_STATIC_LIB_DIR}/xcb/libxcb-image.a
+    ${EXTERN_STATIC_LIB_DIR}/xcb/libxcb-randr.a
+    ${EXTERN_STATIC_LIB_DIR}/xcb/libxcb-shm.a
+    ${EXTERN_STATIC_LIB_DIR}/xcb/libxcb-util.a
+)
+set(NEUROCAR_EXTERN_LIBRARIES ${NEUROCAR_EXTERN_LIBRARIES} ${EXTERN_LIBRARIES_XCB})
+include_directories(SYSTEM ${EXTERN_INCLUDE_DIR_XCB})
+
+# Udev
+set(EXTERN_INCLUDE_DIR_UDEV ${EXTERN_INCLUDE_DIR}/)
+set(EXTERN_LIBRARIES_UDEV ${EXTERN_STATIC_LIB_DIR}/udev/libudev.a)
+set(NEUROCAR_EXTERN_LIBRARIES ${NEUROCAR_EXTERN_LIBRARIES} ${EXTERN_LIBRARIES_UDEV})
+include_directories(SYSTEM ${EXTERN_INCLUDE_DIR_UDEV})
+
+# Lib jpeg
+set(EXTERN_INCLUDE_DIR_JPEG ${EXTERN_INCLUDE_DIR}/)
+set(EXTERN_LIBRARIES_JPEG ${EXTERN_STATIC_LIB_DIR}/jpeg/libjpeg.a)
+set(NEUROCAR_EXTERN_LIBRARIES ${NEUROCAR_EXTERN_LIBRARIES} ${EXTERN_LIBRARIES_JPEG})
+include_directories(SYSTEM ${EXTERN_INCLUDE_DIR_JPEG})
+
+# OpenGL
+find_package(OpenGL REQUIRED)
+if(NOT OPENGL_FOUND)
+    message(FATAL_ERROR "OPENGL library not found!")
 endif()
+include_directories(${OPENGL_INCLUDE_DIR})
+set(NEUROCAR_EXTERN_LIBRARIES ${NEUROCAR_EXTERN_LIBRARIES} ${OPENGL_LIBRARIES})
 
-target_link_libraries(neuroCar ${PROJECT_SOURCE_DIR}/libs/libBox2D.a)
+
+### Static library ###
+set(LIBRARY_OUTPUT_PATH ${NEUROCAR_BINARY_DIR})
+set(NEUROCAR_STATIC_LIBRARY libNeuroCar)
+add_library(${NEUROCAR_STATIC_LIBRARY} STATIC ${NEUROCAR_SOURCES})
+target_link_libraries(${NEUROCAR_STATIC_LIBRARY} ${NEUROCAR_EXTERN_LIBRARIES})
+
+
+### Executable ###
+set(EXECUTABLE_NAME neuroCar)
+set(EXECUTABLE_OUTPUT_PATH ${NEUROCAR_BINARY_DIR})
+add_executable(${EXECUTABLE_NAME} ${NEUROCAR_SOURCE_DIR}/main.cpp)
+target_link_libraries(${EXECUTABLE_NAME} ${NEUROCAR_STATIC_LIBRARY})
