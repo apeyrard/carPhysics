@@ -28,7 +28,7 @@ Renderer::~Renderer()
     if(m_window.isOpen()) m_window.close();
 }
 
-bool Renderer::update(std::vector<Drawable*> actorList)
+bool Renderer::update(std::vector<Drawable*> const & actorList, bool draw)
 {
     if (m_window.isOpen())
     {
@@ -63,25 +63,27 @@ bool Renderer::update(std::vector<Drawable*> actorList)
         }
 
         // Draw stuff
-
-        // First clear window with black
-        m_window.clear(sf::Color::Black);
-
-        // Draw objects
-        if (!actorList.empty())
+        if(draw)
         {
-            for (auto it = actorList.begin(); it != actorList.end(); ++it)
+            // First clear window with black
+            m_window.clear(sf::Color::Black);
+
+            // Draw objects
+            if (!actorList.empty())
             {
-                if ((*it) != NULL)
+                for (auto it = actorList.begin(); it != actorList.end(); ++it)
                 {
-                    sf::ConvexShape shape = (**it).getShape(m_scale);
-                    shape.scale(m_scale, m_scale);
-                    m_window.draw(shape);
+                    if ((*it) != NULL)
+                    {
+                        sf::ConvexShape shape = (**it).getShape(m_scale);
+                        shape.scale(m_scale, m_scale);
+                        m_window.draw(shape);
+                    }
                 }
             }
-        }
 
-        m_window.display();
+            m_window.display();
+        }
 
         return true;
     }

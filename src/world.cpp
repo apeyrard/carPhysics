@@ -11,6 +11,7 @@
 #include <raycastcallback.hpp>
 #include <staticbox.hpp>
 
+#include <iostream>
 
 World::World(int32 vIter, int32 pIter, Renderer* r, int simulationRate, int frameRate)
     : m_renderer(r)
@@ -43,13 +44,13 @@ void World::removeDrawables()
 {
     for (auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
     {
-        if ((*it)->m_markedForDeath)
+        if ((*it)->isMarkedForDeath())
         {
             m_world->DestroyBody((*it)->getBody());
         }
     }
 
-    auto it = std::remove_if(m_drawableList.begin(), m_drawableList.end(), [](Drawable* d){return d->m_markedForDeath;});
+    auto it = std::remove_if(m_drawableList.begin(), m_drawableList.end(), [](Drawable* d){return d->isMarkedForDeath();});
 
     while (it != m_drawableList.end())
     {
@@ -70,26 +71,27 @@ void World::RayCast(RaycastCallback* callback, b2Vec2 p1, b2Vec2 p2)
 
 void World::addBorders(int width, int height)
 {
-    //Creating a box
+    float32 w = static_cast<float32>(width);
+    float32 h = static_cast<float32>(height);
+    float32 w2 = w / 2.0f;
+    float32 h2 = h / 2.0f;
 
-    StaticBox* boxL = new StaticBox(b2Vec2(0, height/2), 0, 1, height);
+    StaticBox* boxL = new StaticBox(b2Vec2(0.0f, h2), 0.0f, 1.0f, h);
     addDrawable(boxL);
 
-    StaticBox* boxU = new StaticBox(b2Vec2(width/2, 0), 0, width, 1);
+    StaticBox* boxU = new StaticBox(b2Vec2(w2, 0.0f), 0.0f, w, 1.0f);
     addDrawable(boxU);
 
-    StaticBox* boxR = new StaticBox(b2Vec2(width, height/2), 0, 1, height);
+    StaticBox* boxR = new StaticBox(b2Vec2(w, h2), 0.0f, 1.0f, h);
     addDrawable(boxR);
 
-    StaticBox* boxD = new StaticBox(b2Vec2(width/2, height), 0, width, 1);
+    StaticBox* boxD = new StaticBox(b2Vec2(w2, h), 0.0f, w, 1.0f);
     addDrawable(boxD);
 }
 
 void World::randomize(int width, int height, int nbObstacles)
 {
-    std::chrono::high_resolution_clock::time_point beginning = std::chrono::high_resolution_clock::now();
-    std::chrono::high_resolution_clock::duration d = std::chrono::high_resolution_clock::now() - beginning;
-    unsigned seed = d.count();
+    unsigned int seed = static_cast<unsigned int>(std::time(0));
 
     std::mt19937 rng(seed);
 
@@ -117,6 +119,7 @@ void World::run()
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast< std::chrono::milliseconds> (currentTime - oldTime);
         int timeDiff = duration.count();
+        //std::cout << "Time diff = " << timeDiff << std::endl;
         oldTime = currentTime;
 
         timeAccumulator += timeDiff;
@@ -125,7 +128,7 @@ void World::run()
 
         while (timeAccumulator >= m_simulationRate)
         {
-            //std::cout << "updating" << std::endl;
+            //std::cout << "updating: " << timeAccumulator << std::endl;
             // Game loop
             for (auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
             {
@@ -139,11 +142,17 @@ void World::run()
         }
 
         // Rendering loop
-        while (renderTimeAccumulator >= m_frameRate)
+        while(renderTimeAccumulator >= m_frameRate)
         {
-            //std::cout << "rendering" << std::endl;
+            //std::cout << "rendering: " << renderTimeAccumulator << std::endl;
             m_stop = !(m_renderer->update(m_drawableList));
             renderTimeAccumulator -= m_frameRate;
+
+            // Consume remaining time: no need to render the same thing
+            while(renderTimeAccumulator >= m_frameRate)
+            {
+                renderTimeAccumulator -= m_frameRate;
+            }
         }
 
         //std::cout << m_frameRate << std::endl;

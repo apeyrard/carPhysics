@@ -1,6 +1,13 @@
 #include <drawable.hpp>
 
-Drawable::Drawable()
+Drawable::Drawable():
+    m_color(255, 255, 255),
+    m_shape(),
+    m_body(nullptr),
+    m_bodyDef(),
+    m_fixtureDef(),
+    m_markedForDeath(false),
+    m_vertices()
 {
 
 }
@@ -20,9 +27,9 @@ sf::ConvexShape Drawable::getShape(float scale)
     convex.setPointCount(4);
 
     int i = 0;
-    for (auto it = vertices.begin(); it != vertices.end(); ++it)
+    for(auto it = m_vertices.begin(); it != m_vertices.end(); ++it)
     {
-        convex.setPoint(i , sf::Vector2f((*it).first, (*it).second));
+        convex.setPoint(i , sf::Vector2f(it->first, it->second));
         ++i;
     }
     convex.move(scale*pos.x, scale*pos.y);
@@ -51,7 +58,7 @@ void Drawable::setBody(b2Body* newVal)
     m_body = newVal;
 }
 
-b2BodyDef * Drawable::getBodyDef()
+b2BodyDef const * Drawable::getBodyDef() const
 {
     return &m_bodyDef;
 }
@@ -67,12 +74,23 @@ void Drawable::attachJointAsB(b2JointDef &jointDef)
     jointDef.bodyB = m_body;
 }
 
-b2Vec2 Drawable::getPos() const
+b2Vec2 const & Drawable::getPos() const
 {
     return m_body->GetPosition();
 }
 
 b2Vec2 Drawable::getForwardDirection() const
 {
-    return m_body->GetWorldVector(b2Vec2(1,0));
+    return m_body->GetWorldVector(b2Vec2(0, 1));
 }
+
+bool Drawable::isMarkedForDeath() const
+{
+    return m_markedForDeath;
+}
+
+void Drawable::setMarkedForDeath(bool death)
+{
+    m_markedForDeath = death;
+}
+

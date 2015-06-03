@@ -10,7 +10,9 @@ class Renderer
 public:
     Renderer(int scale, int width, int height);
     ~Renderer();
-    bool update(std::vector<Drawable*> actorList);
+
+    bool update(std::vector<Drawable*> const & actorList, bool draw = true);
+
 protected:
     sf::RenderWindow m_window;
     float m_scale; // pixels per meter

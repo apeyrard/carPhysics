@@ -1,9 +1,10 @@
 #include <tire.hpp>
 
-Tire::Tire(b2Vec2 initPos, float32 initAngle, float32 height, float32 width, bool motor)
-    : motor(motor)
-    , m_height(height)
-    , m_width(width)
+
+Tire::Tire(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h, bool motor)
+    : m_width(w)
+    , m_height(h)
+    , m_motor(motor)
 {
     m_color = sf::Color(0, 255, 0, 128);
 
@@ -11,17 +12,21 @@ Tire::Tire(b2Vec2 initPos, float32 initAngle, float32 height, float32 width, boo
     m_bodyDef.position.Set(initPos.x, initPos.y);
     m_bodyDef.angle = initAngle;
 
-    m_shape.SetAsBox(m_height/2, m_width/2);
+    float32 halfWidth  = m_width / 2.0f;
+    float32 halfHeight = m_height / 2.0f;
+
+    m_shape.SetAsBox(halfWidth, halfHeight);
 
     m_fixtureDef.shape = &m_shape;
     m_fixtureDef.density = 1.0f;
     m_fixtureDef.friction = 0.3f;
 
     // Creating vertices in CCW order
-    vertices.push_back(std::make_pair(m_height/2, -m_width/2));
-    vertices.push_back(std::make_pair(-m_height/2, -m_width/2));
-    vertices.push_back(std::make_pair(-m_height/2, m_width/2));
-    vertices.push_back(std::make_pair(m_height/2, m_width/2));
+    m_vertices.reserve(4);
+    m_vertices.push_back(std::make_pair(+halfWidth, -halfHeight));
+    m_vertices.push_back(std::make_pair(-halfWidth, -halfHeight));
+    m_vertices.push_back(std::make_pair(-halfWidth, +halfHeight));
+    m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
 }
 
 Tire::~Tire()
@@ -36,30 +41,41 @@ void Tire::accelerate(float32 power) const
     m_body->ApplyForceToCenter(direction, true);
 }
 
+bool Tire::hasMotor() const
+{
+    return m_motor;
+}
+
+void Tire::setMotor(bool motor)
+{
+    m_motor = motor;
+}
+
 
 b2Vec2 Tire::getLateralVelocity() const
 {
-    b2Vec2 currentRightNormal = m_body->GetWorldVector(b2Vec2(0,1));
-    return b2Dot(currentRightNormal, m_body->GetLinearVelocity())*currentRightNormal;
+    b2Vec2 right = m_body->GetWorldVector(b2Vec2(1, 0));
+    right.Normalize();
+    return b2Dot(m_body->GetLinearVelocity(), right) * right;
 }
 
 b2Vec2 Tire::getForwardVelocity() const
 {
-    b2Vec2 currentForwardNormal = m_body->GetWorldVector(b2Vec2(1,0));
-    return b2Dot( currentForwardNormal, m_body->GetLinearVelocity() ) * currentForwardNormal;
+    b2Vec2 forward = m_body->GetWorldVector(b2Vec2(0, 1));
+    forward.Normalize();
+    return b2Dot(m_body->GetLinearVelocity(), forward) * forward;
 }
-
 
 void Tire::simulateFriction()
 {
-  // Keep only the forward velocity to remove drifting lateraly
-  b2Vec2 forVel = getForwardVelocity();
-  m_body->SetLinearVelocity(forVel);
+    // Keep only the forward velocity to remove drifting lateraly
+    b2Vec2 forVel = getForwardVelocity();
+    m_body->SetLinearVelocity(forVel);
 
-  // Simulate drag by applying impulse in direction opposing to movement
-  // Impulse is proprtional to velocity squared
-  b2Vec2 drag = m_body->GetLinearVelocity();
-  drag *= 0.001 * drag.Length();
-  drag = -drag;
-  m_body->ApplyLinearImpulse(drag, m_body->GetWorldCenter(), true);
+    // Simulate drag by applying impulse in direction opposing to movement
+    // Impulse is proportional to velocity squared
+    b2Vec2 drag = m_body->GetLinearVelocity();
+    drag *= 0.001 * drag.Length();
+    drag = -drag;
+    m_body->ApplyLinearImpulse(drag, m_body->GetWorldCenter(), true);
 }
