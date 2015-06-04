@@ -71,7 +71,9 @@ void Car::setBody(b2Body* body, World* w)
             tireLocalPos.x = 2.0f * x * m_width / 3.0f - m_width / 3.0f;
             tireLocalPos.y = 2.0f * y * m_height / 3.0f - m_height / 3.0f;
 
-            b2Vec2 tirePos = m_initPos + tireLocalPos;
+            b2Vec2 tirePos;
+            tirePos.x = tireLocalPos.x * cos(m_initAngle) - tireLocalPos.y * sin(m_initAngle) + m_initPos.x;
+            tirePos.y = tireLocalPos.x * sin(m_initAngle) + tireLocalPos.y * cos(m_initAngle) + m_initPos.y;
 
             Tire* tire = new Tire(tirePos, m_initAngle, tireWidth, tireHeight, motor);
 
