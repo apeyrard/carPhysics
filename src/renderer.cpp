@@ -6,7 +6,7 @@
 
 #include <SFML/Window/Keyboard.hpp>
 
-Renderer::Renderer(int scale, int width, int height)
+Renderer::Renderer(uint32_t scale, uint32_t width, uint32_t height)
     : m_scale(scale)
     , m_width(width * scale)
     , m_height(height * scale)
@@ -32,7 +32,7 @@ Renderer::~Renderer()
 
 bool Renderer::update(std::vector<Drawable*> const & actorList, bool draw)
 {
-    if (m_window.isOpen())
+    if(m_window.isOpen())
     {
         sf::Event event;
         while(m_window.pollEvent(event))
@@ -67,17 +67,17 @@ bool Renderer::update(std::vector<Drawable*> const & actorList, bool draw)
         // Draw stuff
         if(draw)
         {
-            // First clear window with black
+            // Clear window
             m_window.clear(sf::Color::Black);
 
             // Draw objects
-            if (!actorList.empty())
+            if(!actorList.empty())
             {
-                for (auto it = actorList.begin(); it != actorList.end(); ++it)
+                for(auto it = actorList.begin(); it != actorList.end(); ++it)
                 {
-                    if ((*it) != NULL)
+                    if((*it) != nullptr)
                     {
-                        sf::ConvexShape shape = (**it).getShape(m_scale);
+                        sf::ConvexShape shape =(**it).getShape(m_scale);
                         shape.scale(m_scale, m_scale);
                         m_window.draw(shape);
                     }
@@ -89,10 +89,8 @@ bool Renderer::update(std::vector<Drawable*> const & actorList, bool draw)
 
         return true;
     }
-    else
-    {
-        return false;
-    }
+
+    return false;
 }
 
 #endif // NEURO_CAR_GRAPHIC_MODE_SFML

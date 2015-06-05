@@ -29,7 +29,7 @@ sf::ConvexShape Drawable::getShape(float scale)
 
     convex.setPointCount(4);
 
-    int i = 0;
+    int32_t i = 0;
     for(auto it = m_vertices.begin(); it != m_vertices.end(); ++it)
     {
         convex.setPoint(i , sf::Vector2f(it->first, it->second));
@@ -42,12 +42,12 @@ sf::ConvexShape Drawable::getShape(float scale)
 }
 #endif // NEURO_CAR_GRAPHIC_MODE_SFML
 
-void Drawable::update(World* const w)
+void Drawable::update(World const *)
 {
 
 }
 
-void Drawable::die(World* const w)
+void Drawable::die(World const * w)
 {
     m_markedForDeath = true;
 }

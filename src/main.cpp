@@ -1,13 +1,13 @@
-#include <world.hpp>
+#include <car.hpp>
 #include <renderer.hpp>
 #include <staticbox.hpp>
-#include <car.hpp>
+#include <world.hpp>
 
 
-int main()
+int32_t main()
 {
-    int worldWidth = 100;
-    int worldHeight = 80;
+    uint32_t worldWidth = 100;
+    uint32_t worldHeight = 80;
 
     #if NEURO_CAR_GRAPHIC_MODE_SFML
     Renderer r(8, worldWidth, worldHeight);

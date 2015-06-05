@@ -84,7 +84,7 @@ b2Joint * World::createJoint(b2RevoluteJointDef* jointDef)
     return m_world->CreateJoint(jointDef);
 }
 
-void World::rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2)
+void World::rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2) const
 {
     m_world->RayCast(cb, p1, p2);
 }
@@ -143,7 +143,7 @@ void World::run()
     while(!m_stop)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast< std::chrono::milliseconds>(currentTime - oldTime);
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
         oldTime = currentTime;
 
         int32_t timeDiff = duration.count();
@@ -206,7 +206,7 @@ void World::run()
     while(!m_stop && updateCount < 100)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast< std::chrono::milliseconds>(currentTime - oldTime);
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
         oldTime = currentTime;
 
         int32_t timeDiff = duration.count();

@@ -1,11 +1,15 @@
 #include <raycastcallback.hpp>
 
 RaycastCallback::RaycastCallback(const b2Body* owner)
-    :owner(owner)
+    : owner(owner)
+    , fixture(nullptr)
+    , point()
+    , normal()
+    , fraction(0.0f)
+    , oldFixture(nullptr)
+    , oldFraction(0.0f)
 {
-    fixture = nullptr;
-    oldFixture = nullptr;
-    oldFraction = 0;
+
 }
 
 RaycastCallback::~RaycastCallback()

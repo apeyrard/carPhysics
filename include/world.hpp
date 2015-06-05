@@ -40,7 +40,7 @@ public:
 
     b2Joint * createJoint(b2RevoluteJointDef * jointDef);
 
-    void rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2);
+    void rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2) const;
 
     void addBorders(int32_t width, int32_t height);
 

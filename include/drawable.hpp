@@ -16,7 +16,7 @@ public:
     Drawable();
     virtual ~Drawable();
 
-    virtual void update(World* const w);
+    virtual void update(World const * w);
 
     #if NEURO_CAR_GRAPHIC_MODE_SFML
     virtual sf::ConvexShape getShape(float scale);
@@ -27,7 +27,7 @@ public:
     void attachJointAsB(b2JointDef &joint);
     b2Body* getBody();
     void setBody(b2Body* newVal);
-    virtual void die(World* const w);
+    virtual void die(World const * w);
     b2Vec2 const & getPos() const;
     b2Vec2 getForwardDirection() const;
     bool isMarkedForDeath() const;
