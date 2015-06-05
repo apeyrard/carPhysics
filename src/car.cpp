@@ -86,7 +86,7 @@ void Car::setBody(b2Body* body, World* w)
             jointDef.localAnchorA = tireLocalPos;
             jointDef.localAnchorB = b2Vec2(0.0, 0.0); // Center of the tire
 
-            b2Joint* joint = w->CreateJoint(&jointDef);
+            b2Joint* joint = w->createJoint(&jointDef);
 
             // Not used
             #if 1
@@ -162,7 +162,7 @@ std::vector<float32> Car::doRaycast(World* const w) const
         point2 *= m_raycastDist;
         point2 += point1;
 
-        w->RayCast(&callback, point1, point2);
+        w->rayCast(&callback, point1, point2);
         if(callback.fixture != nullptr)
         {
             result.push_back(callback.fraction);
