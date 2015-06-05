@@ -1,7 +1,10 @@
 #pragma once
 
-#include <SFML/Graphics.hpp>
+#if NEURO_CAR_GRAPHIC_MODE_SFML
+
 #include <vector>
+
+#include <SFML/Graphics.hpp>
 
 class Drawable;
 
@@ -19,3 +22,5 @@ protected:
     int m_width;
     int m_height;
 };
+
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML

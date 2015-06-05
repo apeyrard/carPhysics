@@ -12,7 +12,9 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     , m_acceleration(acceleration)
     , m_angles(std::move(raycastAngles))
 {
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color = sf::Color(0, 0, 255, 128);
+    #endif
 
     m_bodyDef.type = b2_dynamicBody;
     m_bodyDef.position.Set(initPos.x, initPos.y);
@@ -123,7 +125,10 @@ void Car::update(World* const w)
             min =(*it);
         }
     }
+
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color = sf::Color((1-min)*255, 0, min * 255, 128);
+    #endif
 
     for(b2ContactEdge* ce  = m_body->GetContactList(); ce; ce = ce->next)
     {

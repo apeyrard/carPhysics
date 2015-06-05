@@ -18,10 +18,23 @@ set (NEUROCAR_VERSION ${NEUROCAR_VERSION_MAJOR}.${NEUROCAR_VERSION_MINOR}.${NEUR
 
 set(NEUROCAR_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
-# Flags
+### Compilation flags ###
+
 if (CMAKE_COMPILER_IS_GNUCXX)
     set(CMAKE_CXX_FLAGS "-g -O2 -Wall -Wno-sign-compare")
     add_definitions(-std=gnu++0x)
+endif()
+
+### Definitions ###
+
+# Enable/disable graphic mode
+set(NEURO_CAR_GRAPHIC_MODE ON CACHE BOOL "Enable/Disable graphic mode")
+if(NEURO_CAR_GRAPHIC_MODE)
+    message(STATUS "Graphic mode enabled")
+    add_definitions(-DNEURO_CAR_GRAPHIC_MODE_SFML=1)
+else()
+    message(STATUS "Graphic mode disabled")
+    add_definitions(-DNEURO_CAR_GRAPHIC_MODE_SFML=0)
 endif()
 
 

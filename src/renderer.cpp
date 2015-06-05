@@ -1,3 +1,5 @@
+#if NEURO_CAR_GRAPHIC_MODE_SFML
+
 #include <renderer.hpp>
 
 #include <drawable.hpp>
@@ -92,3 +94,5 @@ bool Renderer::update(std::vector<Drawable*> const & actorList, bool draw)
         return false;
     }
 }
+
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML

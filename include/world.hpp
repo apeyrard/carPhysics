@@ -3,13 +3,21 @@
 #include <Box2D/Box2D.h>
 
 class Drawable;
-class Renderer;
 class RaycastCallback;
+
+#if NEURO_CAR_GRAPHIC_MODE_SFML
+class Renderer;
+#endif
 
 class World
 {
 public:
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     explicit World(int32 vIter=8, int32 pIter=3, Renderer* r=nullptr, int simulationRate=10, int frameRate=16);
+    #else
+    explicit World(int32 vIter=8, int32 pIter=3, int simulationRate=10, int frameRate=16);
+    #endif
+
     ~World();
     void addDrawable(Drawable* d);
     void run();
@@ -18,7 +26,11 @@ public:
     void addBorders(int width, int height);
     void randomize(int width, int height, int nbObstacles);
 protected:
+
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     Renderer* m_renderer;
+    #endif
+
     bool m_stop = false;
 
     int32 m_velocityIterations;
@@ -28,6 +40,6 @@ protected:
 
     b2World* m_world;
     std::vector<Drawable*> m_drawableList;
-    
+
     void removeDrawables();
 };

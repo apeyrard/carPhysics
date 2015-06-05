@@ -6,13 +6,17 @@
 #include <algorithm>
 
 #include <drawable.hpp>
+
+#if NEURO_CAR_GRAPHIC_MODE_SFML
 #include <renderer.hpp>
+#endif
 
 #include <raycastcallback.hpp>
 #include <staticbox.hpp>
 
 #include <iostream>
 
+#if NEURO_CAR_GRAPHIC_MODE_SFML
 World::World(int32 vIter, int32 pIter, Renderer* r, int simulationRate, int frameRate)
     : m_renderer(r)
     , m_velocityIterations(vIter)
@@ -23,6 +27,17 @@ World::World(int32 vIter, int32 pIter, Renderer* r, int simulationRate, int fram
     b2Vec2 gravity(0.0f, 0.0f);
     m_world = new b2World(gravity);
 }
+#else
+World::World(int32 vIter, int32 pIter, int simulationRate, int frameRate)
+    : m_velocityIterations(vIter)
+    , m_positionIterations(pIter)
+    , m_simulationRate(simulationRate)
+    , m_frameRate(frameRate)
+{
+    b2Vec2 gravity(0.0f, 0.0f);
+    m_world = new b2World(gravity);
+}
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML
 
 World::~World()
 {
@@ -107,6 +122,7 @@ void World::randomize(int width, int height, int nbObstacles)
     }
 }
 
+#if NEURO_CAR_GRAPHIC_MODE_SFML
 void World::run()
 {
     double timeAccumulator = 0.0;
@@ -163,3 +179,48 @@ void World::run()
         std::this_thread::sleep_for(std::chrono::milliseconds( delay));
     }
 }
+#else
+void World::run()
+{
+    int updateCount = 0;
+    double timeAccumulator = 0.0;
+    double totalTime = 0.0;
+    auto oldTime = std::chrono::high_resolution_clock::now();
+    //int i = 0;
+    while (!m_stop && updateCount < 500)
+    {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast< std::chrono::milliseconds> (currentTime - oldTime);
+        int timeDiff = duration.count();
+        //std::cout << "Time diff = " << timeDiff << std::endl;
+        oldTime = currentTime;
+
+        timeAccumulator += timeDiff;
+        totalTime += timeDiff;
+
+        while (timeAccumulator >= m_simulationRate)
+        {
+            //std::cout << "updating: " << timeAccumulator << std::endl;
+            // Game loop
+            for (auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
+            {
+                (*it)->update(this);
+            }
+
+            updateCount++;
+
+            removeDrawables();
+
+            m_world->Step((double)m_simulationRate / 1000, m_velocityIterations, m_positionIterations);
+            timeAccumulator -= m_simulationRate;
+        }
+
+        //std::cout << m_frameRate << std::endl;
+        //std::cout << m_simulationRate << std::endl;
+        //std::cout << timeAccumulator << std::endl;
+        if(updateCount % 10 == 0) std::cout << updateCount << std::endl;
+        int delay = m_simulationRate - timeAccumulator;
+        std::this_thread::sleep_for(std::chrono::milliseconds( delay));
+    }
+}
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML

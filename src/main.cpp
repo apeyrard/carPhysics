@@ -8,8 +8,14 @@ int main()
 {
     int worldWidth = 100;
     int worldHeight = 80;
+
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     Renderer r(8, worldWidth, worldHeight);
     World w(8, 3, &r);
+    #else
+    World w(8, 3);
+    #endif
+
     w.addBorders(worldWidth, worldHeight);
 
     w.randomize(worldWidth, worldHeight, 15);
