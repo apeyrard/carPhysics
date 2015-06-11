@@ -130,7 +130,7 @@ void Car::update(World const * w)
     // Updating flags with controller if it exists
     if (m_controller != NULL)
     {
-        m_flags = m_controller->updateFlags();
+        m_flags = m_controller->updateFlags(this);
     }
 
     m_dists = doRaycast(w);
