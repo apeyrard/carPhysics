@@ -75,7 +75,7 @@ void Tire::simulateFriction()
     // Simulate drag by applying impulse in direction opposing to movement
     // Impulse is proportional to velocity squared
     b2Vec2 drag = m_body->GetLinearVelocity();
-    drag *= 0.001 * drag.Length();
+    drag *= 0.0005 * drag.Length();
     drag = -drag;
     m_body->ApplyLinearImpulse(drag, m_body->GetWorldCenter(), true);
 }

@@ -26,8 +26,10 @@ protected:
     int m_simulationRate;
     int m_frameRate;
 
+    double m_simulationMultiplier;
+
     b2World* m_world;
     std::vector<Drawable*> m_drawableList;
-    
+
     void removeDrawables();
 };

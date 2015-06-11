@@ -11,11 +11,11 @@ public:
     void accelerate(float32 power) const;
     bool hasMotor() const;
     void setMotor(bool motor);
+    void simulateFriction();
 
 protected:
     b2Vec2 getLateralVelocity() const;
     b2Vec2 getForwardVelocity() const;
-    void simulateFriction();
 
 protected:
     float32 m_width;

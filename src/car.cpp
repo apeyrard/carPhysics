@@ -125,6 +125,11 @@ void Car::update(World* const w)
     }
     m_color = sf::Color((1-min)*255, 0, min * 255, 128);
 
+    for (auto it=m_tireList.begin(); it!=m_tireList.end();++it)
+    {
+        (*it)->simulateFriction();
+    }
+
     for(b2ContactEdge* ce  = m_body->GetContactList(); ce; ce = ce->next)
     {
         b2Contact* c = ce->contact;

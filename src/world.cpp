@@ -155,11 +155,12 @@ void World::run()
             }
         }
 
-        //std::cout << m_frameRate << std::endl;
-        //std::cout << renderTimeAccumulator << std::endl;
-        //std::cout << m_simulationRate << std::endl;
-        //std::cout << timeAccumulator << std::endl;
-        int delay = std::min((m_frameRate - renderTimeAccumulator), (m_simulationRate - timeAccumulator));
-        std::this_thread::sleep_for(std::chrono::milliseconds( delay));
+        /*std::cout << std::endl;
+        std::cout << m_frameRate << std::endl;
+        std::cout << renderTimeAccumulator << std::endl;
+        std::cout << m_simulationRate << std::endl;
+        std::cout << timeAccumulator << std::endl;*/
+        int delay = std::min((m_frameRate - renderTimeAccumulator), ((m_simulationRate - timeAccumulator)));
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     }
 }
