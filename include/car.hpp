@@ -6,6 +6,7 @@
 #include <drawable.hpp>
 #include <tire.hpp>
 #include <world.hpp>
+#include <controller.hpp>
 
 class Car : public Drawable
 {
@@ -23,7 +24,8 @@ public:
         float32 initAngle,
         float32 w, float32 h,
         float32 acceleration,
-        std::vector<float32> raycastAngles
+        std::vector<float32> raycastAngles,
+        Controller* controller=NULL
     );
 
     ~Car();
@@ -58,6 +60,8 @@ protected:
     float32 m_power;
     std::vector<float32> m_dists;
     std::vector<float32> m_angles;
+
+    Controller* m_controller;
 
     int32_t m_nbMotorWheels;
 };

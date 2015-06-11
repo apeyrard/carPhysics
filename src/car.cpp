@@ -2,7 +2,7 @@
 #include <raycastcallback.hpp>
 
 Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
-    float32 acceleration, std::vector<float32> raycastAngles
+    float32 acceleration, std::vector<float32> raycastAngles, Controller* controller
 )
     : Drawable()
     , m_width(w)
@@ -21,6 +21,7 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     , m_power(0.0f)
     , m_dists()
     , m_angles(std::move(raycastAngles))
+    , m_controller(controller)
     , m_nbMotorWheels(0)
 {
     #if NEURO_CAR_GRAPHIC_MODE_SFML
@@ -123,13 +124,20 @@ void Car::setBody(b2Body * body, World * w)
     m_power = body->GetMass() * m_acceleration;
 }
 
+
 void Car::update(World const * w)
 {
-    m_dists = doRaycast(w);
-    for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
+    // Updating flags with controller if it exists
+    if (m_controller != NULL)
     {
-       (*it)->accelerate(m_power/m_nbMotorWheels);
+        m_flags = m_controller->updateFlags();
     }
+
+    m_dists = doRaycast(w);
+
+    // Change color in funtion of obstacle procimity
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
+
     float32 min = 1.0;
     for(auto it = m_dists.begin(); it != m_dists.end(); ++it)
     {
@@ -139,15 +147,47 @@ void Car::update(World const * w)
         }
     }
 
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color = sf::Color((1-min)*255, 0, min * 255, 128);
     #endif
 
+
+    // Making the car move and turn
+    if (m_flags & Car::FORWARD)
+    {
+        for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
+        {
+            (*it)->accelerate(m_power/m_nbMotorWheels);
+        }
+    }
+
+    if (m_flags & Car::BACKWARD)
+    {
+        for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
+        {
+            (*it)->accelerate(-m_power/m_nbMotorWheels);
+        }
+    }
+
+    if ((m_flags & Car::LEFT) && (m_steeringAngle > -m_maxSteeringAngle))
+    {
+        m_steeringAngle -= m_steeringRate;
+    }
+
+    if ((m_flags & Car::RIGHT) && (m_steeringAngle > -m_maxSteeringAngle))
+    {
+        m_steeringAngle += m_steeringRate;
+    }
+
+    m_fljoint->SetLimits(m_steeringAngle, m_steeringAngle);
+    m_frjoint->SetLimits(m_steeringAngle, m_steeringAngle);
+
+    // SImulate friction on tires
     for (auto it=m_tireList.begin(); it!=m_tireList.end();++it)
     {
         (*it)->simulateFriction();
     }
 
+    // Die if touching obstacle
     for(b2ContactEdge* ce  = m_body->GetContactList(); ce; ce = ce->next)
     {
         b2Contact* c = ce->contact;
