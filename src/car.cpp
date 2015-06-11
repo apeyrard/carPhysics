@@ -5,14 +5,27 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     float32 acceleration, std::vector<float32> raycastAngles
 )
     : Drawable()
-    , m_initPos(initPos)
-    , m_initAngle(initAngle)
     , m_width(w)
     , m_height(h)
+    , m_flags(0)
+    , m_raycastDist(50.0f)
+    , m_initPos(initPos)
+    , m_initAngle(initAngle)
+    , m_tireList()
+    , m_fljoint(nullptr)
+    , m_frjoint(nullptr)
+    , m_steeringAngle(0.0f)
+    , m_maxSteeringAngle((3.0f/8.0f)*b2_pi)
+    , m_steeringRate(0.0f)
     , m_acceleration(acceleration)
+    , m_power(0.0f)
+    , m_dists()
     , m_angles(std::move(raycastAngles))
+    , m_nbMotorWheels(0)
 {
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color = sf::Color(0, 0, 255, 128);
+    #endif
 
     m_bodyDef.type = b2_dynamicBody;
     m_bodyDef.position.Set(initPos.x, initPos.y);
@@ -40,7 +53,7 @@ Car::~Car()
 
 }
 
-void Car::setBody(b2Body* body, World* w)
+void Car::setBody(b2Body * body, World * w)
 {
     Drawable::setBody(body, w);
 
@@ -71,9 +84,11 @@ void Car::setBody(b2Body* body, World* w)
             tireLocalPos.x = 2.0f * x * m_width / 3.0f - m_width / 3.0f;
             tireLocalPos.y = 2.0f * y * m_height / 3.0f - m_height / 3.0f;
 
+            float c = std::cos(m_initAngle);
+            float s = std::sin(m_initAngle);
             b2Vec2 tirePos;
-            tirePos.x = tireLocalPos.x * cos(m_initAngle) - tireLocalPos.y * sin(m_initAngle) + m_initPos.x;
-            tirePos.y = tireLocalPos.x * sin(m_initAngle) + tireLocalPos.y * cos(m_initAngle) + m_initPos.y;
+            tirePos.x = tireLocalPos.x * c - tireLocalPos.y * s + m_initPos.x;
+            tirePos.y = tireLocalPos.x * s + tireLocalPos.y * c + m_initPos.y;
 
             Tire* tire = new Tire(tirePos, m_initAngle, tireWidth, tireHeight, motor);
 
@@ -84,7 +99,7 @@ void Car::setBody(b2Body* body, World* w)
             jointDef.localAnchorA = tireLocalPos;
             jointDef.localAnchorB = b2Vec2(0.0, 0.0); // Center of the tire
 
-            b2Joint* joint = w->CreateJoint(&jointDef);
+            b2Joint* joint = w->createJoint(&jointDef);
 
             // Not used
             #if 1
@@ -108,7 +123,7 @@ void Car::setBody(b2Body* body, World* w)
     m_power = body->GetMass() * m_acceleration;
 }
 
-void Car::update(World* const w)
+void Car::update(World const * w)
 {
     m_dists = doRaycast(w);
     for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
@@ -123,7 +138,10 @@ void Car::update(World* const w)
             min =(*it);
         }
     }
+
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color = sf::Color((1-min)*255, 0, min * 255, 128);
+    #endif
 
     for (auto it=m_tireList.begin(); it!=m_tireList.end();++it)
     {
@@ -141,7 +159,7 @@ void Car::update(World* const w)
     }
 }
 
-void Car::die(World* const w)
+void Car::die(World const * w)
 {
     Drawable::die(w);
     for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
@@ -150,19 +168,19 @@ void Car::die(World* const w)
     }
 }
 
-std::vector<float32> Car::doRaycast(World* const w) const
+std::vector<float32> Car::doRaycast(World const * w) const
 {
     std::vector<float32> result;
     for(auto it = m_angles.begin(); it != m_angles.end(); ++it)
     {
-        float32 angle =(*it) + m_body->GetAngle();
-        RaycastCallback callback(m_body);
+        float32 angle = (*it) + m_body->GetAngle();
         b2Vec2 point1 = m_body->GetWorldCenter();
-        b2Vec2 point2 = b2Vec2(cos(angle), sin(angle));
+        b2Vec2 point2 = b2Vec2(std::cos(angle), std::sin(angle));
         point2 *= m_raycastDist;
         point2 += point1;
 
-        w->RayCast(&callback, point1, point2);
+        RaycastCallback callback(m_body);
+        w->rayCast(&callback, point1, point2);
         if(callback.fixture != nullptr)
         {
             result.push_back(callback.fraction);

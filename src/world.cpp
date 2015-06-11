@@ -1,19 +1,24 @@
 #include <world.hpp>
 
-#include <chrono>
-#include <thread>
-#include <random>
 #include <algorithm>
+#include <chrono>
+#include <iostream>
+#include <random>
+#include <thread>
+
+#if NEURO_CAR_GRAPHIC_MODE_SFML
+#include <renderer.hpp>
+#endif
 
 #include <drawable.hpp>
-#include <renderer.hpp>
-
 #include <raycastcallback.hpp>
 #include <staticbox.hpp>
 
-#include <iostream>
 
-World::World(int32 vIter, int32 pIter, Renderer* r, int simulationRate, int frameRate)
+#if NEURO_CAR_GRAPHIC_MODE_SFML
+World::World(
+    int32 vIter, int32 pIter, Renderer* r, int32_t simulationRate, int32_t frameRate
+)
     : m_renderer(r)
     , m_velocityIterations(vIter)
     , m_positionIterations(pIter)
@@ -23,17 +28,28 @@ World::World(int32 vIter, int32 pIter, Renderer* r, int simulationRate, int fram
     b2Vec2 gravity(0.0f, 0.0f);
     m_world = new b2World(gravity);
 }
+#else
+World::World(int32 vIter, int32 pIter, int32_t simulationRate, int32_t frameRate)
+    : m_velocityIterations(vIter)
+    , m_positionIterations(pIter)
+    , m_simulationRate(simulationRate)
+    , m_frameRate(frameRate)
+{
+    b2Vec2 gravity(0.0f, 0.0f);
+    m_world = new b2World(gravity);
+}
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML
 
 World::~World()
 {
     delete(m_world);
-    for (auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
+    for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
     {
-        delete(*it);
+        delete *it;
     }
 }
 
-void World::addDrawable(Drawable *drawable)
+void World::addDrawable(Drawable * drawable)
 {
     drawable->setBody(m_world->CreateBody(drawable->getBodyDef()), this);
     m_drawableList.push_back(drawable);
@@ -42,34 +58,38 @@ void World::addDrawable(Drawable *drawable)
 
 void World::removeDrawables()
 {
-    for (auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
+    for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
     {
-        if ((*it)->isMarkedForDeath())
+        if((*it)->isMarkedForDeath())
         {
             m_world->DestroyBody((*it)->getBody());
         }
     }
 
-    auto it = std::remove_if(m_drawableList.begin(), m_drawableList.end(), [](Drawable* d){return d->isMarkedForDeath();});
+    auto it = std::remove_if(
+        m_drawableList.begin(),
+        m_drawableList.end(),
+        [](Drawable * d){return d->isMarkedForDeath();}
+    );
 
-    while (it != m_drawableList.end())
+    while(it != m_drawableList.end())
     {
-        delete((*it));
+        delete *it;
         m_drawableList.erase(it);
     }
 }
 
-b2Joint* World::CreateJoint(b2RevoluteJointDef* jointDef)
+b2Joint * World::createJoint(b2RevoluteJointDef* jointDef)
 {
     return m_world->CreateJoint(jointDef);
 }
 
-void World::RayCast(RaycastCallback* callback, b2Vec2 p1, b2Vec2 p2)
+void World::rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2) const
 {
-    m_world->RayCast(callback, p1, p2);
+    m_world->RayCast(cb, p1, p2);
 }
 
-void World::addBorders(int width, int height)
+void World::addBorders(int32_t width, int32_t height)
 {
     float32 w = static_cast<float32>(width);
     float32 h = static_cast<float32>(height);
@@ -89,59 +109,70 @@ void World::addBorders(int width, int height)
     addDrawable(boxD);
 }
 
-void World::randomize(int width, int height, int nbObstacles)
+void World::randomize(int32_t width, int32_t height, int32_t nbObstacles)
 {
-    unsigned int seed = static_cast<unsigned int>(std::time(0));
+    uint32_t seed = static_cast<uint32_t>(std::time(0));
 
     std::mt19937 rng(seed);
 
-    std::uniform_int_distribution<int> heightDistribution(0, height);
-    std::uniform_int_distribution<int> widthDistribution(0, width);
-    std::uniform_int_distribution<int> angleDistribution(0, 359);
+    std::uniform_int_distribution<int32_t> heightDistribution(0, height);
+    std::uniform_int_distribution<int32_t> widthDistribution(0, width);
+    std::uniform_int_distribution<int32_t> angleDistribution(0, 359);
     std::normal_distribution<float32> sizeDistribution(10.0, 5.0);
 
-    for (int i = 1; i <= nbObstacles; ++i)
+    for(int32_t i = 0; i < nbObstacles; ++i)
     {
-        StaticBox* box = new StaticBox(b2Vec2(widthDistribution(rng), heightDistribution(rng)), angleDistribution(rng), sizeDistribution(rng), sizeDistribution(rng));
+        StaticBox * box = new StaticBox(
+            b2Vec2(widthDistribution(rng), heightDistribution(rng)),
+            angleDistribution(rng),
+            sizeDistribution(rng),
+            sizeDistribution(rng)
+        );
         addDrawable(box);
     }
 }
 
+#if NEURO_CAR_GRAPHIC_MODE_SFML
 void World::run()
 {
     double timeAccumulator = 0.0;
     double renderTimeAccumulator = 0.0;
     double totalTime = 0.0;
     auto oldTime = std::chrono::high_resolution_clock::now();
-    //int i = 0;
-    while (!m_stop)
+
+    while(!m_stop)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast< std::chrono::milliseconds> (currentTime - oldTime);
-        int timeDiff = duration.count();
-        //std::cout << "Time diff = " << timeDiff << std::endl;
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
         oldTime = currentTime;
 
+        int32_t timeDiff = duration.count();
         timeAccumulator += timeDiff;
         renderTimeAccumulator += timeDiff;
         totalTime += timeDiff;
 
-        while (timeAccumulator >= m_simulationRate)
+        // Simulation
+        while(timeAccumulator >= m_simulationRate)
         {
             //std::cout << "updating: " << timeAccumulator << std::endl;
-            // Game loop
-            for (auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
+
+            // Update drawables
+            for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
             {
-                (*it)->update(this);
+               (*it)->update(this);
             }
 
+            // Remove the one marked for death
             removeDrawables();
 
-            m_world->Step((double)m_simulationRate / 1000, m_velocityIterations, m_positionIterations);
+            // Simulate one step of physics
+            double sr = static_cast<double>(m_simulationRate) / 1000.0;
+            m_world->Step(sr, m_velocityIterations, m_positionIterations);
+
             timeAccumulator -= m_simulationRate;
         }
 
-        // Rendering loop
+        // Rendering
         while(renderTimeAccumulator >= m_frameRate)
         {
             //std::cout << "rendering: " << renderTimeAccumulator << std::endl;
@@ -155,12 +186,61 @@ void World::run()
             }
         }
 
-        /*std::cout << std::endl;
-        std::cout << m_frameRate << std::endl;
-        std::cout << renderTimeAccumulator << std::endl;
-        std::cout << m_simulationRate << std::endl;
-        std::cout << timeAccumulator << std::endl;*/
-        int delay = std::min((m_frameRate - renderTimeAccumulator), ((m_simulationRate - timeAccumulator)));
+        // Sleep to free CPU
+        int32_t delay = std::min(
+            (m_frameRate - renderTimeAccumulator),
+            (m_simulationRate - timeAccumulator)
+        );
+
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     }
 }
+#else
+void World::run()
+{
+    int32_t updateCount = 0;
+    double timeAccumulator = 0.0;
+    double totalTime = 0.0;
+    auto oldTime = std::chrono::high_resolution_clock::now();
+
+    while(!m_stop && updateCount < 100)
+    {
+        auto currentTime = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
+        oldTime = currentTime;
+
+        int32_t timeDiff = duration.count();
+        timeAccumulator += timeDiff;
+        totalTime += timeDiff;
+
+        // Simulation
+        while(timeAccumulator >= m_simulationRate)
+        {
+            //std::cout << "updating: " << timeAccumulator << std::endl;
+
+            // Update drawables
+            for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
+            {
+               (*it)->update(this);
+            }
+
+            // Remove the one marked for death
+            removeDrawables();
+
+            // Simulate one step of physics
+            double sr = static_cast<double>(m_simulationRate) / 1000.0;
+            m_world->Step(sr, m_velocityIterations, m_positionIterations);
+
+            timeAccumulator -= m_simulationRate;
+
+            ++updateCount;
+        }
+
+        if(updateCount % 10 == 0) std::cout << updateCount << std::endl;
+
+        // Sleep to free CPU
+        int32_t delay = m_simulationRate - timeAccumulator;
+        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+    }
+}
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML

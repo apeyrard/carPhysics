@@ -5,7 +5,10 @@ StaticBox::StaticBox(b2Vec2 const & initPos, float32 initAngle, float32 w, float
     , m_width(w)
     , m_height(h)
 {
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color = sf::Color(200, 100, 30, 255);
+    #endif
+
     m_bodyDef.type = b2_staticBody;
     m_bodyDef.position.Set(initPos.x, initPos.y);
     m_bodyDef.angle = initAngle;

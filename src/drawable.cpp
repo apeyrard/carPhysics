@@ -1,7 +1,9 @@
 #include <drawable.hpp>
 
 Drawable::Drawable():
+    #if NEURO_CAR_GRAPHIC_MODE_SFML
     m_color(255, 255, 255),
+    #endif
     m_shape(),
     m_body(nullptr),
     m_bodyDef(),
@@ -16,6 +18,7 @@ Drawable::~Drawable()
 {
 }
 
+#if NEURO_CAR_GRAPHIC_MODE_SFML
 sf::ConvexShape Drawable::getShape(float scale)
 {
     // Getting actual pos and rot
@@ -26,7 +29,7 @@ sf::ConvexShape Drawable::getShape(float scale)
 
     convex.setPointCount(4);
 
-    int i = 0;
+    int32_t i = 0;
     for(auto it = m_vertices.begin(); it != m_vertices.end(); ++it)
     {
         convex.setPoint(i , sf::Vector2f(it->first, it->second));
@@ -37,13 +40,14 @@ sf::ConvexShape Drawable::getShape(float scale)
     convex.setFillColor(m_color);
     return convex;
 }
+#endif // NEURO_CAR_GRAPHIC_MODE_SFML
 
-void Drawable::update(World* const w)
+void Drawable::update(World const *)
 {
 
 }
 
-void Drawable::die(World* const w)
+void Drawable::die(World const * w)
 {
     m_markedForDeath = true;
 }
