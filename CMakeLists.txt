@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 2.8)
 
 # Useful macros
-include(${CMAKE_SOURCE_DIR}/cmake/macros.cmake)
+include(${CMAKE_CURRENT_SOURCE_DIR}/cmake/macros.cmake)
 
 # Requires an out of source build
 MACRO_ENSURE_OUT_OF_SOURCE_BUILD("Requires an out of source build.")
@@ -16,7 +16,7 @@ set (NEUROCAR_VERSION_MINOR 1)
 set (NEUROCAR_VERSION_PATCH 0)
 set (NEUROCAR_VERSION ${NEUROCAR_VERSION_MAJOR}.${NEUROCAR_VERSION_MINOR}.${NEUROCAR_VERSION_PATCH})
 
-set(NEUROCAR_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
+set(NEUROCAR_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
 ### Compilation flags ###
 
@@ -41,7 +41,7 @@ endif()
 ### Sources ###
 
 # Include directories
-set(NEUROCAR_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/include)
+set(NEUROCAR_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${NEUROCAR_INCLUDE_DIR})
 
 # Sources
@@ -60,11 +60,11 @@ set (NEUROCAR_SOURCES
 ### Extern libraries ###
 
 # Add custom CMake module path
-set(CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake/modules" ${CMAKE_MODULE_PATH})
 
 # Setup directories
-set(EXTERN_INCLUDE_DIR ${CMAKE_SOURCE_DIR}/libs/headers)
-set(EXTERN_STATIC_LIB_DIR ${CMAKE_SOURCE_DIR}/libs/static)
+set(EXTERN_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/headers)
+set(EXTERN_STATIC_LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/libs/static)
 set(NEUROCAR_EXTERN_LIBRARIES "")
 
 # Box2D
