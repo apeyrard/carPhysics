@@ -1,7 +1,7 @@
 #include <drawable.hpp>
 
 Drawable::Drawable():
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     m_color(255, 255, 255),
     #endif
     m_shape(),
@@ -18,7 +18,7 @@ Drawable::~Drawable()
 {
 }
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 sf::ConvexShape Drawable::getShape(float scale)
 {
     // Getting actual pos and rot
@@ -40,7 +40,7 @@ sf::ConvexShape Drawable::getShape(float scale)
     convex.setFillColor(m_color);
     return convex;
 }
-#endif // NEURO_CAR_GRAPHIC_MODE_SFML
+#endif // CAR_PHYSICS_GRAPHIC_MODE_SFML
 
 void Drawable::update(World const *)
 {

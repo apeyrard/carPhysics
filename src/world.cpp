@@ -6,7 +6,7 @@
 #include <random>
 #include <thread>
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 #include <renderer.hpp>
 #endif
 
@@ -15,7 +15,7 @@
 #include <staticbox.hpp>
 
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 World::World(
     int32 vIter, int32 pIter, Renderer* r, int32_t simulationRate, int32_t frameRate
 )
@@ -38,7 +38,7 @@ World::World(int32 vIter, int32 pIter, int32_t simulationRate, int32_t frameRate
     b2Vec2 gravity(0.0f, 0.0f);
     m_world = new b2World(gravity);
 }
-#endif // NEURO_CAR_GRAPHIC_MODE_SFML
+#endif // CAR_PHYSICS_GRAPHIC_MODE_SFML
 
 World::~World()
 {
@@ -132,7 +132,7 @@ void World::randomize(int32_t width, int32_t height, int32_t nbObstacles)
     }
 }
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 void World::run()
 {
     double timeAccumulator = 0.0;
@@ -243,4 +243,4 @@ void World::run()
         std::this_thread::sleep_for(std::chrono::milliseconds(delay));
     }
 }
-#endif // NEURO_CAR_GRAPHIC_MODE_SFML
+#endif // CAR_PHYSICS_GRAPHIC_MODE_SFML
