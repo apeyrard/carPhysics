@@ -47,7 +47,7 @@ void Drawable::update(World const *)
 
 }
 
-void Drawable::die(World const * w)
+void Drawable::die(World const *)
 {
     m_markedForDeath = true;
 }
@@ -67,7 +67,7 @@ b2BodyDef const * Drawable::getBodyDef() const
     return &m_bodyDef;
 }
 
-void Drawable::setBody(b2Body * body, World* w)
+void Drawable::setBody(b2Body * body, World*)
 {
     m_body = body;
     m_body->CreateFixture(&m_fixtureDef);

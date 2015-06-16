@@ -4,7 +4,7 @@
 #include <world.hpp>
 
 
-int32_t main()
+int main()
 {
     uint32_t worldWidth = 100;
     uint32_t worldHeight = 80;
