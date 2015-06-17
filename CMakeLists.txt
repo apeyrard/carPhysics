@@ -28,7 +28,10 @@ endif()
 ### Definitions ###
 
 # Enable/disable graphic mode
-set(CAR_PHYSICS_GRAPHIC_MODE ON CACHE BOOL "Enable/Disable graphic mode")
+if(NOT DEFINED CAR_PHYSICS_GRAPHIC_MODE)
+    set(CAR_PHYSICS_GRAPHIC_MODE ON CACHE BOOL "Enable/Disable graphic mode")
+endif()
+
 if(CAR_PHYSICS_GRAPHIC_MODE)
     message(STATUS "Graphic mode enabled")
     add_definitions(-DCAR_PHYSICS_GRAPHIC_MODE_SFML=1)
