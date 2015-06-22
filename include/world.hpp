@@ -36,6 +36,7 @@ public:
     ~World();
 
     void addDrawable(Drawable * d);
+    void addRequiredDrawable(Drawable * d);
 
     void run();
 
@@ -65,5 +66,7 @@ protected:
     int32_t m_frameRate;
 
     b2World * m_world;
+
     std::vector<std::shared_ptr<Drawable>> m_drawableList;
+    std::vector<Drawable *> m_requiredDrawables;
 };

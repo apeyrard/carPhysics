@@ -51,6 +51,12 @@ void World::addDrawable(Drawable * drawable)
     m_drawableList.push_back(std::shared_ptr<Drawable>(drawable));
 }
 
+void World::addRequiredDrawable(Drawable * drawable)
+{
+    m_requiredDrawables.push_back(drawable);
+    addDrawable(drawable);
+}
+
 
 void World::removeDrawables()
 {
@@ -71,6 +77,17 @@ void World::removeDrawables()
     while(it != m_drawableList.end())
     {
         m_drawableList.erase(it);
+    }
+
+    auto it2 = std::remove_if(
+        m_requiredDrawables.begin(),
+        m_requiredDrawables.end(),
+        [](Drawable* d){return d->isMarkedForDeath();}
+    );
+
+    while(it2 != m_requiredDrawables.end())
+    {
+        m_requiredDrawables.erase(it2);
     }
 }
 
@@ -135,7 +152,8 @@ void World::run()
     double totalTime = 0.0;
     auto oldTime = std::chrono::high_resolution_clock::now();
 
-    while(!m_stop)
+
+    while(!m_stop && m_requiredDrawables.size() > 0)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
@@ -198,7 +216,7 @@ void World::run()
     double totalTime = 0.0;
     auto oldTime = std::chrono::high_resolution_clock::now();
 
-    while(!m_stop && updateCount < 100)
+    while(!m_stop && updateCount < 100 && m_requiredDrawables.size() > 0)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);

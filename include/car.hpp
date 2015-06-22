@@ -35,6 +35,7 @@ public:
     virtual void die(World const * w) override;
 
     b2Vec2 getPos() const;
+    std::vector<float32> getDist() const;
 
 protected:
     std::vector<float32> doRaycast(World const * w) const;
