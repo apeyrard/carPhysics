@@ -45,13 +45,13 @@ World::~World()
     delete(m_world);
 }
 
-void World::addDrawable(Drawable * drawable)
+void World::addDrawable(std::shared_ptr<Drawable> drawable)
 {
     drawable->setBody(m_world->CreateBody(drawable->getBodyDef()), this);
-    m_drawableList.push_back(std::shared_ptr<Drawable>(drawable));
+    m_drawableList.push_back(drawable);
 }
 
-void World::addRequiredDrawable(Drawable * drawable)
+void World::addRequiredDrawable(std::shared_ptr<Drawable> drawable)
 {
     m_requiredDrawables.push_back(drawable);
     addDrawable(drawable);
@@ -82,7 +82,7 @@ void World::removeDrawables()
     auto it2 = std::remove_if(
         m_requiredDrawables.begin(),
         m_requiredDrawables.end(),
-        [](Drawable* d){return d->isMarkedForDeath();}
+        [](std::shared_ptr<Drawable> d){return d->isMarkedForDeath();}
     );
 
     while(it2 != m_requiredDrawables.end())
@@ -108,22 +108,25 @@ void World::addBorders(int32_t width, int32_t height)
     float32 w2 = w / 2.0f;
     float32 h2 = h / 2.0f;
 
-    StaticBox* boxL = new StaticBox(b2Vec2(0.0f, h2), 0.0f, 1.0f, h);
+    std::shared_ptr<StaticBox> boxL = std::make_shared<StaticBox> (b2Vec2(0.0f, h2), 0.0f, 1.0f, h);
     addDrawable(boxL);
 
-    StaticBox* boxU = new StaticBox(b2Vec2(w2, 0.0f), 0.0f, w, 1.0f);
+    std::shared_ptr<StaticBox> boxU = std::make_shared<StaticBox>(b2Vec2(w2, 0.0f), 0.0f, w, 1.0f);
     addDrawable(boxU);
 
-    StaticBox* boxR = new StaticBox(b2Vec2(w, h2), 0.0f, 1.0f, h);
+    std::shared_ptr<StaticBox> boxR = std::make_shared<StaticBox>(b2Vec2(w, h2), 0.0f, 1.0f, h);
     addDrawable(boxR);
 
-    StaticBox* boxD = new StaticBox(b2Vec2(w2, h), 0.0f, w, 1.0f);
+    std::shared_ptr<StaticBox> boxD = std::make_shared<StaticBox>(b2Vec2(w2, h), 0.0f, w, 1.0f);
     addDrawable(boxD);
 }
 
-void World::randomize(int32_t width, int32_t height, int32_t nbObstacles)
+void World::randomize(int32_t width, int32_t height, int32_t nbObstacles, uint32_t seed)
 {
-    uint32_t seed = static_cast<uint32_t>(std::time(0));
+    if(seed == 0)
+    {
+        seed = static_cast<uint32_t>(std::time(0));
+    }
 
     std::mt19937 rng(seed);
 
@@ -134,7 +137,7 @@ void World::randomize(int32_t width, int32_t height, int32_t nbObstacles)
 
     for(int32_t i = 0; i < nbObstacles; ++i)
     {
-        StaticBox * box = new StaticBox(
+        std::shared_ptr<StaticBox> box = std::make_shared<StaticBox>(
             b2Vec2(widthDistribution(rng), heightDistribution(rng)),
             angleDistribution(rng),
             sizeDistribution(rng),
@@ -142,6 +145,20 @@ void World::randomize(int32_t width, int32_t height, int32_t nbObstacles)
         );
         addDrawable(box);
     }
+}
+
+bool World::willCollide(std::shared_ptr<Drawable> d)
+{
+    addDrawable(d);
+    m_world->Step(m_simulationRate/1000.0, m_velocityIterations, m_positionIterations);
+
+    bool result = d->isColliding();
+
+    d->die(this);
+    removeDrawables();
+    d->setMarkedForDeath(false);
+
+    return result;
 }
 
 #if CAR_PHYSICS_GRAPHIC_MODE_SFML
@@ -155,6 +172,8 @@ void World::run()
 
     while(!m_stop && m_requiredDrawables.size() > 0)
     {
+
+
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
         oldTime = currentTime;

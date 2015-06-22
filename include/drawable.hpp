@@ -32,6 +32,7 @@ public:
     b2Vec2 getForwardDirection() const;
     bool isMarkedForDeath() const;
     void setMarkedForDeath(bool death);
+    bool isColliding() const;
 
 protected:
     #if CAR_PHYSICS_GRAPHIC_MODE_SFML

@@ -50,7 +50,7 @@ protected:
     b2Vec2 m_initPos;
     float32 m_initAngle;
 
-    std::vector<Tire*> m_tireList;
+    std::vector<std::shared_ptr<Tire> > m_tireList;
 
     b2RevoluteJoint* m_fljoint;
     b2RevoluteJoint* m_frjoint;

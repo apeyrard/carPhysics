@@ -3,6 +3,9 @@
 #include <staticbox.hpp>
 #include <world.hpp>
 
+#include <memory>
+
+#include <iostream>
 
 int main()
 {
@@ -46,10 +49,12 @@ int main()
     };
 
     float32 carAngle = 90.0;
-    Car* car = new Car(b2Vec2(50, 10), toRadian(carAngle), 2, 3, 8.0, angles);
+    std::shared_ptr<Car> car = std::make_shared<Car> (b2Vec2(50, 10), toRadian(carAngle), 2, 3, 8.0, angles);
 
     w.addRequiredDrawable(car);
+
     w.run();
+
 
     return 0;
 }

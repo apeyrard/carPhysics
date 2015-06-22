@@ -1,6 +1,8 @@
 #include <car.hpp>
 #include <raycastcallback.hpp>
 
+#include <memory>
+
 Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     float32 acceleration, std::vector<float32> raycastAngles, Controller* controller
 )
@@ -91,7 +93,7 @@ void Car::setBody(b2Body * body, World * w)
             tirePos.x = tireLocalPos.x * c - tireLocalPos.y * s + m_initPos.x;
             tirePos.y = tireLocalPos.x * s + tireLocalPos.y * c + m_initPos.y;
 
-            Tire* tire = new Tire(tirePos, m_initAngle, tireWidth, tireHeight, motor);
+            std::shared_ptr<Tire> tire = std::make_shared<Tire> (tirePos, m_initAngle, tireWidth, tireHeight, motor);
 
             w->addDrawable(tire);
 
@@ -186,14 +188,9 @@ void Car::update(World const * w)
     }
 
     // Die if touching obstacle
-    for(b2ContactEdge* ce  = m_body->GetContactList(); ce; ce = ce->next)
+    if(isColliding())
     {
-        b2Contact* c = ce->contact;
-        // process c
-        if(c->IsTouching())
-        {
-            die(w);
-        }
+        die(w);
     }
 }
 

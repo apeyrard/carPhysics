@@ -98,3 +98,16 @@ void Drawable::setMarkedForDeath(bool death)
     m_markedForDeath = death;
 }
 
+bool Drawable::isColliding() const
+{
+    for(b2ContactEdge* ce  = m_body->GetContactList(); ce; ce = ce->next)
+    {
+        b2Contact* c = ce->contact;
+        // process c
+        if(c->IsTouching())
+        {
+            return true;
+        }
+    }
+    return false;
+}

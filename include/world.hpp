@@ -35,8 +35,8 @@ public:
 
     ~World();
 
-    void addDrawable(Drawable * d);
-    void addRequiredDrawable(Drawable * d);
+    void addDrawable(std::shared_ptr<Drawable> d);
+    void addRequiredDrawable(std::shared_ptr<Drawable> d);
 
     void run();
 
@@ -46,7 +46,9 @@ public:
 
     void addBorders(int32_t width, int32_t height);
 
-    void randomize(int32_t width, int32_t height, int32_t nbObstacles);
+    void randomize(int32_t width, int32_t height, int32_t nbObstacles, uint32_t seed=0);
+
+    bool willCollide(std::shared_ptr<Drawable> d);
 
 
 protected:
@@ -68,5 +70,5 @@ protected:
     b2World * m_world;
 
     std::vector<std::shared_ptr<Drawable>> m_drawableList;
-    std::vector<Drawable *> m_requiredDrawables;
+    std::vector<std::shared_ptr<Drawable> > m_requiredDrawables;
 };
