@@ -124,13 +124,14 @@ void Car::setBody(b2Body * body, World * w)
 
 void Car::update(World const * w)
 {
+    m_dists = doRaycast(w);
+
     // Updating flags with controller if it exists
     if (m_controller != NULL)
     {
         m_flags = m_controller->updateFlags(this);
     }
 
-    m_dists = doRaycast(w);
 
     // Change color in funtion of obstacle procimity
     #if CAR_PHYSICS_GRAPHIC_MODE_SFML
