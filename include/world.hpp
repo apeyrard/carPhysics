@@ -9,14 +9,14 @@
 class Drawable;
 class RaycastCallback;
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 class Renderer;
 #endif
 
 class World
 {
 public:
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     explicit World(
         int32 vIter = 8,
         int32 pIter = 3,
@@ -53,7 +53,7 @@ protected:
 
 
 protected:
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     Renderer * m_renderer;
     #endif
 

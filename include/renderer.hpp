@@ -1,6 +1,6 @@
 #pragma once
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 
 #include <cstdint>
 #include <vector>
@@ -24,4 +24,4 @@ protected:
     uint32_t m_height;
 };
 
-#endif // NEURO_CAR_GRAPHIC_MODE_SFML
+#endif // CAR_PHYSICS_GRAPHIC_MODE_SFML

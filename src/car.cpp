@@ -24,7 +24,7 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     , m_controller(controller)
     , m_nbMotorWheels(0)
 {
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     m_color = sf::Color(0, 0, 255, 128);
     #endif
 
@@ -136,7 +136,7 @@ void Car::update(World const * w)
     m_dists = doRaycast(w);
 
     // Change color in funtion of obstacle procimity
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
 
     float32 min = 1.0;
     for(auto it = m_dists.begin(); it != m_dists.end(); ++it)

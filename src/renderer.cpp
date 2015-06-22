@@ -1,4 +1,4 @@
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 
 #include <renderer.hpp>
 
@@ -17,9 +17,9 @@ Renderer::Renderer(uint32_t scale, uint32_t width, uint32_t height)
     settings.minorVersion = 3;
     settings.depthBits = 24;
     settings.antialiasingLevel = 0;
-    m_window.create(sf::VideoMode(m_width, m_height), "NeuroCar", sf::Style::Default, settings);
+    m_window.create(sf::VideoMode(m_width, m_height), "Car physics", sf::Style::Default, settings);
     #else
-    m_window.create(sf::VideoMode(m_width, m_height), "NeuroCar", sf::Style::Default);
+    m_window.create(sf::VideoMode(m_width, m_height), "Car physics", sf::Style::Default);
     #endif
 
     m_window.setVerticalSyncEnabled(true);
@@ -93,4 +93,4 @@ bool Renderer::update(std::vector<std::shared_ptr<Drawable> > const & actorList,
     return false;
 }
 
-#endif // NEURO_CAR_GRAPHIC_MODE_SFML
+#endif // CAR_PHYSICS_GRAPHIC_MODE_SFML

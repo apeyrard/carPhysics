@@ -6,7 +6,7 @@ Tire::Tire(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h, bool
     , m_height(h)
     , m_motor(motor)
 {
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     m_color = sf::Color(0, 255, 0, 128);
     #endif
 

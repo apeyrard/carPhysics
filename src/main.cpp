@@ -4,12 +4,12 @@
 #include <world.hpp>
 
 
-int32_t main()
+int main()
 {
     uint32_t worldWidth = 100;
     uint32_t worldHeight = 80;
 
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     Renderer r(8, worldWidth, worldHeight);
     World w(8, 3, &r);
     #else

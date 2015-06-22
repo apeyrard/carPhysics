@@ -25,7 +25,7 @@ public:
         float32 w, float32 h,
         float32 acceleration,
         std::vector<float32> raycastAngles,
-        Controller* controller=NULL
+        Controller* controller = nullptr
     );
 
     ~Car();

@@ -3,7 +3,7 @@
 #include <vector>
 #include <Box2D/Box2D.h>
 
-#if NEURO_CAR_GRAPHIC_MODE_SFML
+#if CAR_PHYSICS_GRAPHIC_MODE_SFML
 #include <SFML/Graphics/ConvexShape.hpp>
 #endif
 
@@ -18,7 +18,7 @@ public:
 
     virtual void update(World const * w);
 
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     virtual sf::ConvexShape getShape(float scale);
     #endif
 
@@ -34,7 +34,7 @@ public:
     void setMarkedForDeath(bool death);
 
 protected:
-    #if NEURO_CAR_GRAPHIC_MODE_SFML
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     sf::Color m_color;
     #endif
 
