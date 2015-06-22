@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <Box2D/Box2D.h>
+#include <memory>
 
 
 class Drawable;
@@ -64,5 +65,5 @@ protected:
     int32_t m_frameRate;
 
     b2World * m_world;
-    std::vector<Drawable *> m_drawableList;
+    std::vector<std::shared_ptr<Drawable>> m_drawableList;
 };

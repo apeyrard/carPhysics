@@ -30,7 +30,7 @@ Renderer::~Renderer()
     if(m_window.isOpen()) m_window.close();
 }
 
-bool Renderer::update(std::vector<Drawable*> const & actorList, bool draw)
+bool Renderer::update(std::vector<std::shared_ptr<Drawable> > const & actorList, bool draw)
 {
     if(m_window.isOpen())
     {

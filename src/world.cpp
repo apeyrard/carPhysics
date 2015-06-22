@@ -43,16 +43,12 @@ World::World(int32 vIter, int32 pIter, int32_t simulationRate, int32_t frameRate
 World::~World()
 {
     delete(m_world);
-    for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
-    {
-        delete *it;
-    }
 }
 
 void World::addDrawable(Drawable * drawable)
 {
     drawable->setBody(m_world->CreateBody(drawable->getBodyDef()), this);
-    m_drawableList.push_back(drawable);
+    m_drawableList.push_back(std::shared_ptr<Drawable>(drawable));
 }
 
 
@@ -69,12 +65,11 @@ void World::removeDrawables()
     auto it = std::remove_if(
         m_drawableList.begin(),
         m_drawableList.end(),
-        [](Drawable * d){return d->isMarkedForDeath();}
+        [](std::shared_ptr<Drawable> d){return d->isMarkedForDeath();}
     );
 
     while(it != m_drawableList.end())
     {
-        delete *it;
         m_drawableList.erase(it);
     }
 }

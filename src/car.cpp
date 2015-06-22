@@ -232,3 +232,9 @@ std::vector<float32> Car::doRaycast(World const * w) const
     }
     return result;
 }
+
+b2Vec2 Car::getPos() const
+{
+
+    return m_body->GetPosition();
+}

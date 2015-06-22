@@ -34,6 +34,8 @@ public:
     virtual void setBody(b2Body * body, World * w) override;
     virtual void die(World const * w) override;
 
+    b2Vec2 getPos() const;
+
 protected:
     std::vector<float32> doRaycast(World const * w) const;
 

@@ -4,7 +4,7 @@
 
 #include <cstdint>
 #include <vector>
-
+#include <memory>
 #include <SFML/Graphics.hpp>
 
 class Drawable;
@@ -15,7 +15,7 @@ public:
     Renderer(uint32_t scale, uint32_t width, uint32_t height);
     ~Renderer();
 
-    bool update(std::vector<Drawable*> const & actorList, bool draw = true);
+    bool update(std::vector<std::shared_ptr<Drawable> > const & actorList, bool draw = true);
 
 protected:
     sf::RenderWindow m_window;
