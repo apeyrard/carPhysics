@@ -170,7 +170,7 @@ void Car::update(World const * w)
         m_steeringAngle -= m_steeringRate;
     }
 
-    if ((m_flags & Car::RIGHT) && (m_steeringAngle > -m_maxSteeringAngle))
+    if ((m_flags & Car::RIGHT) && (m_steeringAngle < m_maxSteeringAngle))
     {
         m_steeringAngle += m_steeringRate;
     }
