@@ -16,7 +16,7 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     , m_frjoint(nullptr)
     , m_steeringAngle(0.0f)
     , m_maxSteeringAngle((3.0f/8.0f)*b2_pi)
-    , m_steeringRate(0.0f)
+    , m_steeringRate(m_maxSteeringAngle/30.0)
     , m_acceleration(acceleration)
     , m_power(0.0f)
     , m_dists()
