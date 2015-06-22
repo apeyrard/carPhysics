@@ -235,7 +235,7 @@ void World::run()
     double totalTime = 0.0;
     auto oldTime = std::chrono::high_resolution_clock::now();
 
-    while(!m_stop && updateCount < 100 && m_requiredDrawables.size() > 0)
+    while(!m_stop && updateCount < 10000 && m_requiredDrawables.size() > 0)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
@@ -268,7 +268,7 @@ void World::run()
             ++updateCount;
         }
 
-        if(updateCount % 10 == 0) std::cout << updateCount << std::endl;
+        //if(updateCount % 10 == 0) std::cout << updateCount << std::endl;
 
         // Sleep to free CPU
         int32_t delay = m_simulationRate - timeAccumulator;
