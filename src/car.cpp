@@ -102,11 +102,9 @@ void Car::setBody(b2Body * body, World * w)
 
             b2Joint* joint = w->createJoint(&jointDef);
 
-            // Not used
-            #if 1
-            if(x == 1)
+            if(y == 1)
             {
-                if(y == 0)
+                if(x == 0)
                 {
                     m_fljoint = static_cast<b2RevoluteJoint*>(joint);
                 }
@@ -115,7 +113,6 @@ void Car::setBody(b2Body * body, World * w)
                     m_frjoint = static_cast<b2RevoluteJoint*>(joint);
                 }
             }
-            #endif
 
             m_tireList.push_back(tire);
         }
