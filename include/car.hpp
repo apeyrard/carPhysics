@@ -40,7 +40,7 @@ public:
     void setController(Controller* c);
 
     b2Vec2 getPos() const;
-    std::vector<float32> getDist() const;
+    std::vector<float32> const & getDist() const;
 
 protected:
     std::vector<float32> doRaycast(World const * w) const;
