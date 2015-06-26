@@ -84,6 +84,10 @@ Car::~Car()
 
 void Car::setBody(b2Body * body, World * w)
 {
+    m_tireList.clear();
+
+
+    assert(m_tireList.size() == 0);
     assert(body && "b2Body must not be null");
     assert(w && "world must not be null");
 
