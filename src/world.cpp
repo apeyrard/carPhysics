@@ -231,48 +231,25 @@ void World::run()
 void World::run()
 {
     int32_t updateCount = 0;
-    double timeAccumulator = 0.0;
-    double totalTime = 0.0;
-    auto oldTime = std::chrono::high_resolution_clock::now();
-
     while(!m_stop && updateCount < 10000 && m_requiredDrawables.size() > 0)
     {
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
-        oldTime = currentTime;
-
-        int32_t timeDiff = duration.count();
-        timeAccumulator += timeDiff;
-        totalTime += timeDiff;
-
         // Simulation
-        while(timeAccumulator >= m_simulationRate)
+
+        for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
         {
-            //std::cout << "updating: " << timeAccumulator << std::endl;
-
-            // Update drawables
-            for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
-            {
-               (*it)->update(this);
-            }
-
-            // Remove the one marked for death
-            removeDrawables();
-
-            // Simulate one step of physics
-            double sr = static_cast<double>(m_simulationRate) / 1000.0;
-            m_world->Step(sr, m_velocityIterations, m_positionIterations);
-
-            timeAccumulator -= m_simulationRate;
-
-            ++updateCount;
+           (*it)->update(this);
         }
 
-        //if(updateCount % 10 == 0) std::cout << updateCount << std::endl;
+        // Remove the one marked for death
+        removeDrawables();
 
-        // Sleep to free CPU
-        int32_t delay = m_simulationRate - timeAccumulator;
-        std::this_thread::sleep_for(std::chrono::milliseconds(delay));
+        // Simulate one step of physics
+        double sr = static_cast<double>(m_simulationRate) / 1000.0;
+        m_world->Step(sr, m_velocityIterations, m_positionIterations);
+
+        ++updateCount;
+
+        //if(updateCount % 10 == 0) std::cout << updateCount << std::endl;
     }
 }
 #endif // CAR_PHYSICS_GRAPHIC_MODE_SFML
