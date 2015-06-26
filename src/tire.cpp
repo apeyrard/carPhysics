@@ -1,5 +1,6 @@
 #include <tire.hpp>
 
+#include <cassert>
 
 Tire::Tire(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h, bool motor)
     : m_width(w)
@@ -47,6 +48,7 @@ Tire::~Tire()
 
 void Tire::accelerate(float32 power) const
 {
+    assert(m_body && "Tire has no body");
     b2Vec2 direction = getForwardDirection();
     direction *= power;
     m_body->ApplyForceToCenter(direction, true);
@@ -65,6 +67,7 @@ void Tire::setMotor(bool motor)
 
 b2Vec2 Tire::getLateralVelocity() const
 {
+    assert(m_body && "Tire has no body");
     b2Vec2 right = m_body->GetWorldVector(b2Vec2(1, 0));
     right.Normalize();
     return b2Dot(m_body->GetLinearVelocity(), right) * right;
@@ -72,6 +75,7 @@ b2Vec2 Tire::getLateralVelocity() const
 
 b2Vec2 Tire::getForwardVelocity() const
 {
+    assert(m_body && "Tire has no body");
     b2Vec2 forward = m_body->GetWorldVector(b2Vec2(0, 1));
     forward.Normalize();
     return b2Dot(m_body->GetLinearVelocity(), forward) * forward;
@@ -79,6 +83,7 @@ b2Vec2 Tire::getForwardVelocity() const
 
 void Tire::simulateFriction()
 {
+    assert(m_body && "Tire has no body");
     // Keep only the forward velocity to remove drifting lateraly
     b2Vec2 forVel = getForwardVelocity();
     m_body->SetLinearVelocity(forVel);

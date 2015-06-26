@@ -1,5 +1,7 @@
 #include <drawable.hpp>
 
+#include <cassert>
+
 Drawable::Drawable():
     #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     m_color(255, 255, 255),
@@ -117,6 +119,9 @@ bool Drawable::isColliding() const
     for(b2ContactEdge* ce  = m_body->GetContactList(); ce; ce = ce->next)
     {
         b2Contact* c = ce->contact;
+
+        assert(c && "b2Contact is null");
+
         // process c
         if(c->IsTouching())
         {
