@@ -34,6 +34,8 @@ public:
     virtual void setBody(b2Body * body, World * w) override;
     virtual void die(World const * w) override;
 
+    void setController(Controller* c);
+
     b2Vec2 getPos() const;
     std::vector<float32> getDist() const;
 

@@ -123,6 +123,11 @@ void Car::setBody(b2Body * body, World * w)
     m_power = body->GetMass() * m_acceleration;
 }
 
+void Car::setController(Controller* c)
+{
+    m_controller = c;
+}
+
 
 void Car::update(World const * w)
 {
