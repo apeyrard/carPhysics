@@ -14,6 +14,20 @@ Drawable::Drawable():
 
 }
 
+Drawable::Drawable(Drawable const & other):
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
+    m_color(other.m_color),
+    #endif
+    m_shape(other.m_shape),
+    m_body(nullptr), // Do not need copy: initialized in Drawable::setBody
+    m_bodyDef(other.m_bodyDef),
+    m_fixtureDef(other.m_fixtureDef),
+    m_markedForDeath(false),
+    m_vertices(other.m_vertices)
+{
+
+}
+
 Drawable::~Drawable()
 {
 }

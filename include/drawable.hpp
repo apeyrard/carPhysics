@@ -14,6 +14,10 @@ class Drawable
 {
 public:
     Drawable();
+
+    Drawable(Drawable const & other);
+    Drawable(Drawable && other) noexcept = default;
+
     virtual ~Drawable();
 
     virtual void update(World const * w);

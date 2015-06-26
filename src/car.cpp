@@ -51,6 +51,31 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
 }
 
+Car::Car(Car const & other):
+    Drawable(other),
+    m_width(other.m_width),
+    m_height(other.m_height),
+    m_flags(other.m_flags),
+    m_raycastDist(other.m_raycastDist),
+    m_initPos(other.m_initPos),
+    m_initAngle(other.m_initAngle),
+    m_tireList(),       // Do not need copy: initialized in Car::setBody
+    m_fljoint(nullptr), // Do not need copy: initialized in Car::setBody
+    m_frjoint(nullptr), // Do not need copy: initialized in Car::setBody
+    m_steeringAngle(other.m_steeringAngle),
+    m_maxSteeringAngle(other.m_maxSteeringAngle),
+    m_steeringRate(other.m_steeringRate),
+    m_acceleration(other.m_acceleration),
+    m_power(other.m_power),
+    m_dists(other.m_dists),
+    m_angles(other.m_angles),
+    m_controller(nullptr), // Do not need copy: initialized in Car::setController
+    m_nbMotorWheels(other.m_nbMotorWheels)
+{
+
+}
+
+
 Car::~Car()
 {
 

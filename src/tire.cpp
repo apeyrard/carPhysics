@@ -31,6 +31,15 @@ Tire::Tire(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h, bool
     m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
 }
 
+Tire::Tire(Tire const & other):
+    Drawable(other),
+    m_width(other.m_width),
+    m_height(other.m_height),
+    m_motor(other.m_motor)
+{
+
+}
+
 Tire::~Tire()
 {
 

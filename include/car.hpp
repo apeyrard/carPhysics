@@ -28,6 +28,9 @@ public:
         Controller* controller = nullptr
     );
 
+    Car(Car const & other);
+    Car(Car && other) noexcept = default;
+
     ~Car();
 
     virtual void update(World const * w) override;
