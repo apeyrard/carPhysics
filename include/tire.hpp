@@ -6,6 +6,10 @@ class Tire : public Drawable
 {
 public:
     Tire(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h, bool motor);
+
+    Tire(Tire const & other);
+    Tire(Tire && other) noexcept = default;
+
     ~Tire();
 
     void accelerate(float32 power) const;

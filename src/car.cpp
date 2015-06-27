@@ -1,6 +1,7 @@
 #include <car.hpp>
 #include <raycastcallback.hpp>
 
+#include <cassert>
 #include <memory>
 
 Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
@@ -51,6 +52,31 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
 }
 
+Car::Car(Car const & other):
+    Drawable(other),
+    m_width(other.m_width),
+    m_height(other.m_height),
+    m_flags(other.m_flags),
+    m_raycastDist(other.m_raycastDist),
+    m_initPos(other.m_initPos),
+    m_initAngle(other.m_initAngle),
+    m_tireList(),       // Do not need copy: initialized in Car::setBody
+    m_fljoint(nullptr), // Do not need copy: initialized in Car::setBody
+    m_frjoint(nullptr), // Do not need copy: initialized in Car::setBody
+    m_steeringAngle(other.m_steeringAngle),
+    m_maxSteeringAngle(other.m_maxSteeringAngle),
+    m_steeringRate(other.m_steeringRate),
+    m_acceleration(other.m_acceleration),
+    m_power(other.m_power),
+    m_dists(other.m_dists),
+    m_angles(other.m_angles),
+    m_controller(nullptr), // Do not need copy: initialized in Car::setController
+    m_nbMotorWheels(other.m_nbMotorWheels)
+{
+
+}
+
+
 Car::~Car()
 {
 
@@ -58,6 +84,13 @@ Car::~Car()
 
 void Car::setBody(b2Body * body, World * w)
 {
+    m_tireList.clear();
+
+
+    assert(m_tireList.size() == 0);
+    assert(body && "b2Body must not be null");
+    assert(w && "world must not be null");
+
     Drawable::setBody(body, w);
 
     float32 tireWidth = m_width / 4.0f;
@@ -93,7 +126,9 @@ void Car::setBody(b2Body * body, World * w)
             tirePos.x = tireLocalPos.x * c - tireLocalPos.y * s + m_initPos.x;
             tirePos.y = tireLocalPos.x * s + tireLocalPos.y * c + m_initPos.y;
 
-            std::shared_ptr<Tire> tire = std::make_shared<Tire> (tirePos, m_initAngle, tireWidth, tireHeight, motor);
+            std::shared_ptr<Tire> tire = std::make_shared<Tire>(
+                tirePos, m_initAngle, tireWidth, tireHeight, motor
+            );
 
             w->addDrawable(tire);
 
@@ -103,6 +138,8 @@ void Car::setBody(b2Body * body, World * w)
             jointDef.localAnchorB = b2Vec2(0.0, 0.0); // Center of the tire
 
             b2Joint* joint = w->createJoint(&jointDef);
+
+            assert(joint && "Failed to create joint");
 
             if(y == 1)
             {
@@ -120,6 +157,10 @@ void Car::setBody(b2Body * body, World * w)
         }
     }
 
+    assert(m_tireList.size() == 4);
+    assert(m_fljoint && "m_fljoint is null");
+    assert(m_frjoint && "m_frjoint is null");
+
     m_power = body->GetMass() * m_acceleration;
 }
 
@@ -131,6 +172,8 @@ void Car::setController(Controller* c)
 
 void Car::update(World const * w)
 {
+    assert(w && "World is null");
+
     m_dists = doRaycast(w);
 
     // Updating flags with controller if it exists
@@ -161,6 +204,7 @@ void Car::update(World const * w)
     {
         for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
         {
+            assert((*it) && "Tire is null");
             (*it)->accelerate(m_power/m_nbMotorWheels);
         }
     }
@@ -169,6 +213,7 @@ void Car::update(World const * w)
     {
         for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
         {
+            assert((*it) && "Tire is null");
             (*it)->accelerate(-m_power/m_nbMotorWheels);
         }
     }
@@ -183,12 +228,16 @@ void Car::update(World const * w)
         m_steeringAngle += m_steeringRate;
     }
 
+    assert(m_fljoint && "m_fljoint is null");
+    assert(m_frjoint && "m_frjoint is null");
+
     m_fljoint->SetLimits(m_steeringAngle, m_steeringAngle);
     m_frjoint->SetLimits(m_steeringAngle, m_steeringAngle);
 
     // SImulate friction on tires
     for (auto it=m_tireList.begin(); it!=m_tireList.end();++it)
     {
+        assert((*it) && "Tire is null");
         (*it)->simulateFriction();
     }
 
@@ -204,12 +253,16 @@ void Car::die(World const * w)
     Drawable::die(w);
     for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
     {
+        assert((*it) && "Tire is null");
        (*it)->die(w);
     }
 }
 
 std::vector<float32> Car::doRaycast(World const * w) const
 {
+    assert(w && "World is null");
+    assert(m_body && "Car has no body");
+
     std::vector<float32> result;
     for(auto it = m_angles.begin(); it != m_angles.end(); ++it)
     {
@@ -235,7 +288,7 @@ std::vector<float32> Car::doRaycast(World const * w) const
 
 b2Vec2 Car::getPos() const
 {
-
+    assert(m_body && "Car has no body");
     return m_body->GetPosition();
 }
 
@@ -245,7 +298,7 @@ double Car::getAngle() const
     return m_body->GetAngle();
 }
 
-std::vector<float32> Car::getDist() const
+std::vector<float32> const & Car::getDist() const
 {
     return m_dists;
 }

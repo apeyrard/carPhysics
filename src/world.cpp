@@ -1,6 +1,7 @@
 #include <world.hpp>
 
 #include <algorithm>
+#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <random>
@@ -47,12 +48,14 @@ World::~World()
 
 void World::addDrawable(std::shared_ptr<Drawable> drawable)
 {
+    assert(drawable && "Drawable is null");
     drawable->setBody(m_world->CreateBody(drawable->getBodyDef()), this);
     m_drawableList.push_back(drawable);
 }
 
 void World::addRequiredDrawable(std::shared_ptr<Drawable> drawable)
 {
+    assert(drawable && "Drawable is null");
     m_requiredDrawables.push_back(drawable);
     addDrawable(drawable);
 }
@@ -60,8 +63,10 @@ void World::addRequiredDrawable(std::shared_ptr<Drawable> drawable)
 
 void World::removeDrawables()
 {
+    assert(m_world && "World is null");
     for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
     {
+        assert((*it) && "Drawable is null");
         if((*it)->isMarkedForDeath())
         {
             m_world->DestroyBody((*it)->getBody());
@@ -93,11 +98,13 @@ void World::removeDrawables()
 
 b2Joint * World::createJoint(b2RevoluteJointDef* jointDef)
 {
+    assert(m_world && "World is null");
     return m_world->CreateJoint(jointDef);
 }
 
 void World::rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2) const
 {
+    assert(m_world && "World is null");
     m_world->RayCast(cb, p1, p2);
 }
 
@@ -149,6 +156,8 @@ void World::randomize(int32_t width, int32_t height, int32_t nbObstacles, uint32
 
 bool World::willCollide(std::shared_ptr<Drawable> d)
 {
+    assert(d && "Drawable is null");
+    assert(m_world && "World is null");
     addDrawable(d);
     m_world->Step(m_simulationRate/1000.0, m_velocityIterations, m_positionIterations);
 
@@ -164,6 +173,9 @@ bool World::willCollide(std::shared_ptr<Drawable> d)
 #if CAR_PHYSICS_GRAPHIC_MODE_SFML
 void World::run()
 {
+    assert(m_world && "World is null");
+    assert(m_renderer && "Renderer is null");
+
     double timeAccumulator = 0.0;
     double renderTimeAccumulator = 0.0;
     double totalTime = 0.0;
@@ -172,8 +184,6 @@ void World::run()
 
     while(!m_stop && m_requiredDrawables.size() > 0)
     {
-
-
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
         oldTime = currentTime;
@@ -191,6 +201,7 @@ void World::run()
             // Update drawables
             for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
             {
+                assert((*it) && "Drawable is null");
                (*it)->update(this);
             }
 
@@ -230,6 +241,8 @@ void World::run()
 #else
 void World::run()
 {
+    assert(m_world && "World is null");
+
     int32_t updateCount = 0;
     while(!m_stop && updateCount < 10000 && m_requiredDrawables.size() > 0)
     {
@@ -237,6 +250,7 @@ void World::run()
 
         for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
         {
+            assert((*it) && "Drawable is null");
            (*it)->update(this);
         }
 

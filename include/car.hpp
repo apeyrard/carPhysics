@@ -28,6 +28,9 @@ public:
         Controller* controller = nullptr
     );
 
+    Car(Car const & other);
+    Car(Car && other) noexcept = default;
+
     ~Car();
 
     virtual void update(World const * w) override;
@@ -38,7 +41,7 @@ public:
 
     b2Vec2 getPos() const;
     double getAngle() const;
-    std::vector<float32> getDist() const;
+    std::vector<float32> const & getDist() const;
 
 protected:
     std::vector<float32> doRaycast(World const * w) const;
