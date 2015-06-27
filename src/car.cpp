@@ -3,6 +3,8 @@
 
 #include <cassert>
 #include <memory>
+#include <iostream>
+
 
 Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     float32 acceleration, std::vector<float32> raycastAngles, Controller* controller
@@ -56,22 +58,22 @@ Car::Car(Car const & other):
     Drawable(other),
     m_width(other.m_width),
     m_height(other.m_height),
-    m_flags(other.m_flags),
+    m_flags(0),
     m_raycastDist(other.m_raycastDist),
     m_initPos(other.m_initPos),
     m_initAngle(other.m_initAngle),
     m_tireList(),       // Do not need copy: initialized in Car::setBody
     m_fljoint(nullptr), // Do not need copy: initialized in Car::setBody
     m_frjoint(nullptr), // Do not need copy: initialized in Car::setBody
-    m_steeringAngle(other.m_steeringAngle),
+    m_steeringAngle(0.0), // Do not need copy: set in Car::update
     m_maxSteeringAngle(other.m_maxSteeringAngle),
     m_steeringRate(other.m_steeringRate),
     m_acceleration(other.m_acceleration),
-    m_power(other.m_power),
-    m_dists(other.m_dists),
+    m_power(0.0), // Do not need copy: set in Car::update
+    m_dists(), // Do not need copy: set in Car::update
     m_angles(other.m_angles),
     m_controller(nullptr), // Do not need copy: initialized in Car::setController
-    m_nbMotorWheels(other.m_nbMotorWheels)
+    m_nbMotorWheels(0) // Do not need copy: initialized in Car::setBody
 {
 
 }
@@ -85,13 +87,18 @@ Car::~Car()
 void Car::setBody(b2Body * body, World * w)
 {
     m_tireList.clear();
+    m_nbMotorWheels = 0;
 
+    Drawable::setBody(body, w);
 
-    assert(m_tireList.size() == 0);
+    if(!body || !w) return;
+
     assert(body && "b2Body must not be null");
     assert(w && "world must not be null");
 
-    Drawable::setBody(body, w);
+    assert(m_tireList.size() == 0);
+    assert(m_nbMotorWheels == 0);
+
 
     float32 tireWidth = m_width / 4.0f;
     float32 tireHeight = m_height / 4.0f;
@@ -301,4 +308,29 @@ double Car::getAngle() const
 std::vector<float32> const & Car::getDist() const
 {
     return m_dists;
+}
+
+std::ostream & operator<<(std::ostream & os, Car const & car)
+{
+    os << "Car {" << std::endl;
+    os << "  (w, h): (" << car.m_width << ", " << car.m_height << ")" << std::endl;
+    os << "  flags:   " << car.m_flags << std::endl;
+    os << "  raycast dist:   " << car.m_raycastDist << std::endl;
+    os << "  init pos:   (" << car.m_initPos.x << ", " << car.m_initPos.y << ")" << std::endl;
+    os << "  init angle: " << car.m_initAngle << std::endl;
+    os << "  tires: {" << std::endl;
+    for(auto const & t: car.m_tireList) os << "    " << t.get() << std::endl;
+    os << "  }" << std::endl;
+    os << "  fljoint: " << car.m_fljoint << std::endl;
+    os << "  frjoint: " << car.m_frjoint << std::endl;
+    os << "  steering angle: " << car.m_steeringAngle << std::endl;
+    os << "  max steering angle: " << car.m_maxSteeringAngle << std::endl;
+    os << "  steering rate: " << car.m_steeringRate << std::endl;
+    os << "  acceleration: " << car.m_acceleration << std::endl;
+    os << "  power: " << car.m_power << std::endl;
+
+    os << "  controller: " << car.m_power << std::endl;
+    os << "  #(motor wheels): " << car.m_nbMotorWheels << std::endl;
+
+    return os;
 }

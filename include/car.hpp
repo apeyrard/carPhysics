@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <iosfwd>
 #include <vector>
 
 #include <drawable.hpp>
@@ -33,6 +34,13 @@ public:
 
     ~Car();
 
+    b2Vec2 const & getInitPos() { return m_initPos; }
+    float32 getInitAngle() { return m_initAngle; }
+    float32 getWidth() { return m_width; }
+    float32 getHeight() { return m_height; }
+    float32 getAcceleration() { return m_acceleration; }
+    std::vector<float32> const & getRaycastAngles() { return m_angles; }
+
     virtual void update(World const * w) override;
     virtual void setBody(b2Body * body, World * w) override;
     virtual void die(World const * w) override;
@@ -42,6 +50,8 @@ public:
     b2Vec2 getPos() const;
     double getAngle() const;
     std::vector<float32> const & getDist() const;
+
+    friend std::ostream & operator<<(std::ostream & os, Car const & car);
 
 protected:
     std::vector<float32> doRaycast(World const * w) const;
