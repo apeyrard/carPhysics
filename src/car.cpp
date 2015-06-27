@@ -239,6 +239,12 @@ b2Vec2 Car::getPos() const
     return m_body->GetPosition();
 }
 
+double Car::getAngle() const
+{
+
+    return m_body->GetAngle();
+}
+
 std::vector<float32> Car::getDist() const
 {
     return m_dists;

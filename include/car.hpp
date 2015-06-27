@@ -37,6 +37,7 @@ public:
     void setController(Controller* c);
 
     b2Vec2 getPos() const;
+    double getAngle() const;
     std::vector<float32> getDist() const;
 
 protected:
