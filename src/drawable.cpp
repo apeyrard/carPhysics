@@ -86,7 +86,10 @@ b2BodyDef const * Drawable::getBodyDef() const
 void Drawable::setBody(b2Body * body, World*)
 {
     m_body = body;
-    m_body->CreateFixture(&m_fixtureDef);
+    if(m_body)
+    {
+        m_body->CreateFixture(&m_fixtureDef);
+    }
 }
 
 void Drawable::attachJointAsB(b2JointDef &jointDef)
