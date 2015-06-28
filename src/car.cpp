@@ -128,7 +128,7 @@ void Car::update(World const * w)
             m_steeringAngle -= m_def.steeringRate;
         }
     }
-    
+
     assert(m_fljoint && "m_fljoint is null");
     assert(m_frjoint && "m_frjoint is null");
 
@@ -279,7 +279,7 @@ void Car::doRaycast(World const * w) const
 
     for(auto i = 0u; i < m_def.raycastAngles.size(); ++i)
     {
-        float32 angle = m_def.raycastAngles[i] + m_body->GetAngle();
+        float32 angle = m_def.raycastAngles[i] + m_body->GetAngle() + 90;
         b2Vec2 point1 = m_body->GetWorldCenter();
         b2Vec2 point2 = b2Vec2(std::cos(angle), std::sin(angle));
         point2 *= m_def.raycastDist;
