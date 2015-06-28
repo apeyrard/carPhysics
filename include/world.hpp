@@ -21,11 +21,11 @@ public:
         int32 vIter = 8,
         int32 pIter = 3,
         Renderer * r = nullptr,
-        int32_t simulationRate = 10,
-        int32_t frameRate = 16
+        uint32_t simulationRate = 10,
+        uint32_t frameRate = 16
     );
     #else
-    explicit World(int32 vIter = 8, int32 pIter = 3, int32_t simulationRate = 10);
+    explicit World(int32 vIter = 8, int32 pIter = 3, uint32_t simulationRate = 10);
     #endif
 
     ~World();
@@ -39,9 +39,9 @@ public:
 
     void rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2) const;
 
-    void addBorders(int32_t width, int32_t height);
+    void addBorders(uint32_t width, uint32_t height);
 
-    void randomize(int32_t width, int32_t height, int32_t nbObstacles, uint32_t seed=0);
+    void randomize(uint32_t width, uint32_t height, uint32_t nbObstacles, uint32_t seed=0);
 
     bool willCollide(std::shared_ptr<Drawable> d);
 
@@ -55,13 +55,13 @@ protected:
 
     int32 m_velocityIterations;
     int32 m_positionIterations;
-    int32_t m_simulationRate;
+    uint32_t m_simulationRate;
 
     std::vector<std::shared_ptr<Drawable>> m_drawableList;
     std::vector<std::shared_ptr<Drawable>> m_requiredDrawables;
 
     #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     Renderer * m_renderer;
-    int32_t m_frameRate;
+    uint32_t m_frameRate;
     #endif
 };

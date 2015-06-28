@@ -18,7 +18,7 @@
 
 #if CAR_PHYSICS_GRAPHIC_MODE_SFML
 World::World(
-    int32 vIter, int32 pIter, Renderer* r, int32_t simulationRate, int32_t frameRate
+    int32 vIter, int32 pIter, Renderer* r, uint32_t simulationRate, uint32_t frameRate
 )
     : m_world(nullptr)
     , m_velocityIterations(vIter)
@@ -33,7 +33,7 @@ World::World(
     m_world = new b2World(gravity);
 }
 #else
-World::World(int32 vIter, int32 pIter, int32_t simulationRate)
+World::World(int32 vIter, int32 pIter, uint32_t simulationRate)
     : m_world(nullptr)
     , m_velocityIterations(vIter)
     , m_positionIterations(pIter)
@@ -59,7 +59,7 @@ World::~World()
 
     m_requiredDrawables.clear();
 
-    delete(m_world);
+    delete m_world;
 }
 
 void World::addDrawable(std::shared_ptr<Drawable> drawable)
@@ -117,7 +117,7 @@ void World::rayCast(RaycastCallback * cb, b2Vec2 const & p1, b2Vec2 const & p2) 
     m_world->RayCast(cb, p1, p2);
 }
 
-void World::addBorders(int32_t width, int32_t height)
+void World::addBorders(uint32_t width, uint32_t height)
 {
     float32 w = static_cast<float32>(width);
     float32 h = static_cast<float32>(height);
@@ -137,7 +137,7 @@ void World::addBorders(int32_t width, int32_t height)
     addDrawable(boxD);
 }
 
-void World::randomize(int32_t width, int32_t height, int32_t nbObstacles, uint32_t seed)
+void World::randomize(uint32_t width, uint32_t height, uint32_t nbObstacles, uint32_t seed)
 {
     if(seed == 0)
     {
@@ -146,12 +146,12 @@ void World::randomize(int32_t width, int32_t height, int32_t nbObstacles, uint32
 
     std::mt19937 rng(seed);
 
-    std::uniform_int_distribution<int32_t> heightDistribution(0, height);
-    std::uniform_int_distribution<int32_t> widthDistribution(0, width);
-    std::uniform_int_distribution<int32_t> angleDistribution(0, 359);
+    std::uniform_int_distribution<uint32_t> heightDistribution(0, height);
+    std::uniform_int_distribution<uint32_t> widthDistribution(0, width);
+    std::uniform_int_distribution<uint32_t> angleDistribution(0, 359);
     std::normal_distribution<float32> sizeDistribution(10.0, 5.0);
 
-    for(int32_t i = 0; i < nbObstacles; ++i)
+    for(uint32_t i = 0; i < nbObstacles; ++i)
     {
         std::shared_ptr<StaticBox> box = std::make_shared<StaticBox>(
             b2Vec2(widthDistribution(rng), heightDistribution(rng)),
@@ -173,7 +173,7 @@ bool World::willCollide(std::shared_ptr<Drawable> d)
     bool result = d->isColliding();
 
     d->die(this);
-    removeDrawables();
+    this->removeDrawables();
     d->setMarkedForDeath(false);
 
     return result;
@@ -216,7 +216,7 @@ void World::run()
             }
 
             // Remove the one marked for death
-            removeDrawables();
+            this->removeDrawables();
 
             // Simulate one step of physics
             double sr = static_cast<double>(m_simulationRate) / 1000.0;
@@ -265,7 +265,7 @@ void World::run()
         }
 
         // Remove the one marked for death
-        removeDrawables();
+        this->removeDrawables();
 
         // Simulate one step of physics
         double sr = static_cast<double>(m_simulationRate) / 1000.0;

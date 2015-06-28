@@ -4,10 +4,38 @@
 #include <iosfwd>
 #include <vector>
 
+#include <controller.hpp>
 #include <drawable.hpp>
 #include <tire.hpp>
 #include <world.hpp>
-#include <controller.hpp>
+
+
+struct CarDef
+{
+    float32 width;
+    float32 height;
+    b2Vec2  initPos;
+    float32 initAngle;
+    float32 acceleration;
+    float32 maxSteeringAngle;
+    float32 steeringRate;
+    float32 raycastDist;
+    std::vector<float32> raycastAngles;
+
+    CarDef()
+        : width(0.0)
+        , height(0.0)
+        , initPos(0.0, 0.0)
+        , initAngle(0.0)
+        , acceleration(0.0)
+        , maxSteeringAngle((3.0f/8.0f)*b2_pi)
+        , steeringRate(maxSteeringAngle/30.0)
+        , raycastDist(50.0)
+        , raycastAngles()
+    {
+
+    }
+};
 
 class Car : public Drawable
 {
@@ -20,82 +48,57 @@ public:
         BACKWARD = 1 << 3,
     };
 
-    Car(
-        b2Vec2 const & initPos,
-        float32 initAngle,
-        float32 w, float32 h,
-        float32 acceleration,
-        std::vector<float32> raycastAngles,
-        Controller* controller = nullptr
-    );
+    Car(CarDef const & def, Controller const * controller = nullptr);
 
     Car(Car const & other) = delete;
-    Car(Car && other) noexcept = default;
-
     Car & operator=(Car const & other) = delete;
-    Car & operator=(Car && other) = default;
 
     ~Car();
 
-
-    b2Vec2 const & getInitPos() { return m_initPos; }
-    float32 getInitAngle() { return m_initAngle; }
-    float32 getWidth() { return m_width; }
-    float32 getHeight() { return m_height; }
-    float32 getAcceleration() { return m_acceleration; }
-    std::vector<float32> const & getRaycastAngles() { return m_angles; }
-
-    virtual void update(World const * w) override;
-    virtual void setBody(b2Body * body, World * w) override;
-    virtual void die(World const * w) override;
-
-    void setController(Controller* c);
+    CarDef const & getDefiniton() const;
 
     b2Vec2 getPos() const;
     double getAngle() const;
-    std::vector<float32> const & getDist() const;
+    std::vector<float32> const & getCollisionDists() const;
 
+    void setController(Controller const * c);
 
+    virtual void update(World const * w) override;
+    virtual void die(World const * w) override;
+
+    // Clone the car with its initial parameters
     std::shared_ptr<Car> cloneInitial() const;
+
 
     friend std::ostream & operator<<(std::ostream & os, Car const & car);
 
-protected:
-    std::vector<float32> doRaycast(World const * w) const;
 
-    virtual void reset();
+protected:
+    virtual void setBody(b2Body * body, World * w) override;
+
+    void doRaycast(World const * w) const;
 
 private:
     virtual void onRemoveFromWorld(b2World * w) override;
 
 
 protected:
-    float32 m_width;
-    float32 m_height;
+    /// Car definition ///
+    CarDef const m_def;
 
-    int32_t m_flags;
-    float32 m_raycastDist;
+    /// Car controller ///
+    Controller const * m_controller;
 
-    b2Vec2 m_initPos;
-    float32 m_initAngle;
-
-    std::vector<std::shared_ptr<Tire>> m_tireList;
-
-    b2RevoluteJoint* m_fljoint;
-    b2RevoluteJoint* m_frjoint;
-
-    float32 m_steeringAngle;
-    float32 m_maxSteeringAngle;
-    float32 m_steeringRate;
-
-    float32 m_acceleration;
+    /// "After Car::setBody" parameters ///
     float32 m_power;
-    std::vector<float32> m_dists;
-    std::vector<float32> m_angles;
+    b2RevoluteJoint * m_fljoint;
+    b2RevoluteJoint * m_frjoint;
+    std::vector<std::shared_ptr<Tire>> m_tireList;
+    uint32_t m_nbMotorWheels;
 
+    /// Dynamic parameters ///
+    int32_t m_flags;
     b2Vec2 m_position;
-
-    Controller* m_controller;
-
-    int32_t m_nbMotorWheels;
+    float32 m_steeringAngle;
+    mutable std::vector<float32> m_collisionDists;
 };
