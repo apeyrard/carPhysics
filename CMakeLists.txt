@@ -9,8 +9,6 @@ MACRO_ENSURE_OUT_OF_SOURCE_BUILD("Requires an out of source build.")
 project(CarPhysics)
 
 
-set (CMAKE_BUILD_TYPE debug)
-
 set (CAR_PHYSICS_VERSION_MAJOR 0)
 set (CAR_PHYSICS_VERSION_MINOR 1)
 set (CAR_PHYSICS_VERSION_PATCH 0)
@@ -20,10 +18,54 @@ set(CAR_PHYSICS_BINARY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/bin/${CMAKE_BUILD_TYPE})
 
 ### Compilation flags ###
 
-if (CMAKE_COMPILER_IS_GNUCXX)
-    set(CMAKE_CXX_FLAGS "-g -O2 -Wall -Wno-sign-compare")
-    add_definitions(-std=gnu++0x)
-endif()
+# C++11 flags
+set(CMAKE_CXX_FLAGS "-std=c++11 -fopenmp")
+
+# Base compiler flags
+# https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html
+# https://gcc.gnu.org/onlinedocs/gcc/C_002b_002b-Dialect-Options.html
+# http://stackoverflow.com/a/9862800
+set(CXX_BASE_FLAGS
+    "-W -Wall -Wextra -pedantic"
+    "-Wold-style-cast -Wparentheses -Wlogical-op -Woverloaded-virtual"
+    "-Wfloat-equal -Wpointer-arith -Wcast-align -Wcast-qual"
+    "-Winit-self -Wwrite-strings -Wstrict-null-sentinel"
+    "-Wredundant-decls -Wswitch-default -Wundef -Wunused-parameter"
+    "-Wmissing-include-dirs"
+    "-Wdisabled-optimization"
+    "-Wnoexcept"
+
+    #"-Weffc++"
+    #"-Wshadow"
+    #"-Wsign-conversion"
+    #"-Wconversion"
+    #"-Wstrict-overflow=5"
+    #"-Winline"
+    #"-Wpadded"
+)
+string(REGEX REPLACE ";" " " CXX_BASE_FLAGS "${CXX_BASE_FLAGS}")
+
+# Release mode
+set(CXX_FLAGS_RELEASE "-O3 -Werror ${CXX_BASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELEASE "${CXX_DEFINES} ${CXX_FLAGS_RELEASE}")
+set(CMAKE_CXX_FLAGS_RELEASE ${CXX_FLAGS_RELEASE})
+
+# Debug mode
+set(CXX_FLAGS_DEBUG "-O0 -g ${CXX_BASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_DEBUG "${CXX_DEFINES} ${CXX_FLAGS_DEBUG}")
+set(CMAKE_CXX_FLAGS_DEBUG ${CXX_FLAGS_DEBUG})
+
+# Release with debug symbols
+set(CXX_FLAGS_RELWITHDEBINFO "-O3 -g -Werror ${CXX_BASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO
+    "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} ${CXX_FLAGS_RELWITHDEBINFO}"
+)
+
+# Release with stripping of extra symbols
+set(CXX_FLAGS_MINSIZEREL "${CXX_BASE_FLAGS}")
+set(CMAKE_CXX_FLAGS_MINSIZEREL
+    "${CMAKE_CXX_FLAGS_MINSIZEREL} ${CXX_FLAGS_MINSIZEREL}"
+)
 
 ### Definitions ###
 
