@@ -24,24 +24,7 @@ int main()
     w.randomize(worldWidth, worldHeight, 15);
 
 
-    // a car
-
-    std::vector<float32> angles;
-    //angles to ray cast
-    angles.push_back(0.0f);
-    angles.push_back(b2_pi);
-
-    angles.push_back(b2_pi/2.0f);
-    angles.push_back(-b2_pi/2.0f);
-
-    angles.push_back(b2_pi/4.0f);
-    angles.push_back(-b2_pi/4.0f);
-
-    angles.push_back(b2_pi/8.0f);
-    angles.push_back(-b2_pi/8.0f);
-
-    angles.push_back(3.0f*b2_pi/8.0f);
-    angles.push_back(-3.0f*b2_pi/8.0f);
+    // A car
 
     static auto const toRadian = [](float32 degree)
     {
@@ -49,12 +32,36 @@ int main()
     };
 
     float32 carAngle = 90.0;
-    std::shared_ptr<Car> car = std::make_shared<Car> (b2Vec2(50, 10), toRadian(carAngle), 2, 3, 8.0, angles);
+
+    CarDef carDef;
+    carDef.initPos = b2Vec2(50, 10);
+    carDef.initAngle = toRadian(carAngle);
+    carDef.width = 2.0;
+    carDef.height = 3.0;
+    carDef.acceleration = 8.0;
+
+    //angles to ray cast
+    carDef.raycastAngles.push_back(0.0f);
+    carDef.raycastAngles.push_back(b2_pi);
+
+    carDef.raycastAngles.push_back(b2_pi/2.0f);
+    carDef.raycastAngles.push_back(-b2_pi/2.0f);
+
+    carDef.raycastAngles.push_back(b2_pi/4.0f);
+    carDef.raycastAngles.push_back(-b2_pi/4.0f);
+
+    carDef.raycastAngles.push_back(b2_pi/8.0f);
+    carDef.raycastAngles.push_back(-b2_pi/8.0f);
+
+    carDef.raycastAngles.push_back(3.0f*b2_pi/8.0f);
+    carDef.raycastAngles.push_back(-3.0f*b2_pi/8.0f);
+
+
+    std::shared_ptr<Car> car = std::make_shared<Car>(carDef);
 
     w.addRequiredDrawable(car);
 
     w.run();
-
 
     return 0;
 }
