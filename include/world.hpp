@@ -25,12 +25,7 @@ public:
         int32_t frameRate = 16
     );
     #else
-    explicit World(
-        int32 vIter = 8,
-        int32 pIter = 3,
-        int32_t simulationRate = 10,
-        int32_t frameRate = 16
-    );
+    explicit World(int32 vIter = 8, int32 pIter = 3, int32_t simulationRate = 10);
     #endif
 
     ~World();
@@ -56,19 +51,17 @@ protected:
 
 
 protected:
-    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
-    Renderer * m_renderer;
-    #endif
-
-    bool m_stop = false;
+    b2World * m_world;
 
     int32 m_velocityIterations;
     int32 m_positionIterations;
     int32_t m_simulationRate;
-    int32_t m_frameRate;
-
-    b2World * m_world;
 
     std::vector<std::shared_ptr<Drawable>> m_drawableList;
-    std::vector<std::shared_ptr<Drawable> > m_requiredDrawables;
+    std::vector<std::shared_ptr<Drawable>> m_requiredDrawables;
+
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
+    Renderer * m_renderer;
+    int32_t m_frameRate;
+    #endif
 };

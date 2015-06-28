@@ -5,10 +5,6 @@ StaticBox::StaticBox(b2Vec2 const & initPos, float32 initAngle, float32 w, float
     , m_width(w)
     , m_height(h)
 {
-    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
-    m_color = sf::Color(200, 100, 30, 255);
-    #endif
-
     m_bodyDef.type = b2_staticBody;
     m_bodyDef.position.Set(initPos.x, initPos.y);
     m_bodyDef.angle = initAngle;
@@ -22,12 +18,16 @@ StaticBox::StaticBox(b2Vec2 const & initPos, float32 initAngle, float32 w, float
     m_fixtureDef.density = 1.0f;
     m_fixtureDef.friction = 0.3f;
 
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
+    m_color = sf::Color(200, 100, 30, 255);
+
     // Creating vertices in CCW order
     m_vertices.reserve(4);
     m_vertices.push_back(std::make_pair(+halfWidth, -halfHeight));
     m_vertices.push_back(std::make_pair(-halfWidth, -halfHeight));
     m_vertices.push_back(std::make_pair(-halfWidth, +halfHeight));
     m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
+    #endif
 }
 
 StaticBox::~StaticBox()

@@ -24,21 +24,14 @@ Tire::Tire(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h, bool
     m_fixtureDef.density = 1.0f;
     m_fixtureDef.friction = 0.3f;
 
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     // Creating vertices in CCW order
     m_vertices.reserve(4);
     m_vertices.push_back(std::make_pair(+halfWidth, -halfHeight));
     m_vertices.push_back(std::make_pair(-halfWidth, -halfHeight));
     m_vertices.push_back(std::make_pair(-halfWidth, +halfHeight));
     m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
-}
-
-Tire::Tire(Tire const & other):
-    Drawable(other),
-    m_width(other.m_width),
-    m_height(other.m_height),
-    m_motor(other.m_motor)
-{
-
+    #endif
 }
 
 Tire::~Tire()
@@ -49,9 +42,19 @@ Tire::~Tire()
 void Tire::accelerate(float32 power) const
 {
     assert(m_body && "Tire has no body");
-    b2Vec2 direction = getForwardDirection();
-    direction *= power;
-    m_body->ApplyForceToCenter(direction, true);
+
+    if(this->hasMotor())
+    {
+        b2Vec2 direction = m_body->GetWorldVector(b2Vec2(0, 1));
+        direction.Normalize();
+        direction *= power;
+        m_body->ApplyForceToCenter(direction, true);
+    }
+}
+
+void Tire::attachJointAsB(b2JointDef & jointDef)
+{
+    jointDef.bodyB = m_body;
 }
 
 bool Tire::hasMotor() const
@@ -64,13 +67,20 @@ void Tire::setMotor(bool motor)
     m_motor = motor;
 }
 
-
-b2Vec2 Tire::getLateralVelocity() const
+void Tire::simulateFriction()
 {
     assert(m_body && "Tire has no body");
-    b2Vec2 right = m_body->GetWorldVector(b2Vec2(1, 0));
-    right.Normalize();
-    return b2Dot(m_body->GetLinearVelocity(), right) * right;
+
+    // Keep only the forward velocity to remove drifting lateraly
+    b2Vec2 forVel = this->getForwardVelocity();
+    m_body->SetLinearVelocity(forVel);
+
+    // Simulate drag by applying impulse in direction opposing to movement
+    // Impulse is proportional to velocity squared
+    b2Vec2 drag = m_body->GetLinearVelocity();
+    drag *= 0.0005 * drag.Length();
+    drag = -drag;
+    m_body->ApplyLinearImpulse(drag, m_body->GetWorldCenter(), true);
 }
 
 b2Vec2 Tire::getForwardVelocity() const
@@ -81,17 +91,10 @@ b2Vec2 Tire::getForwardVelocity() const
     return b2Dot(m_body->GetLinearVelocity(), forward) * forward;
 }
 
-void Tire::simulateFriction()
+b2Vec2 Tire::getLateralVelocity() const
 {
     assert(m_body && "Tire has no body");
-    // Keep only the forward velocity to remove drifting lateraly
-    b2Vec2 forVel = getForwardVelocity();
-    m_body->SetLinearVelocity(forVel);
-
-    // Simulate drag by applying impulse in direction opposing to movement
-    // Impulse is proportional to velocity squared
-    b2Vec2 drag = m_body->GetLinearVelocity();
-    drag *= 0.0005 * drag.Length();
-    drag = -drag;
-    m_body->ApplyLinearImpulse(drag, m_body->GetWorldCenter(), true);
+    b2Vec2 right = m_body->GetWorldVector(b2Vec2(1, 0));
+    right.Normalize();
+    return b2Dot(m_body->GetLinearVelocity(), right) * right;
 }

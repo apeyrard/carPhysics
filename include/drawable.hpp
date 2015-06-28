@@ -15,41 +15,51 @@ class Drawable
 public:
     Drawable();
 
-    Drawable(Drawable const & other);
+    Drawable(Drawable const & other) = delete;
     Drawable(Drawable && other) noexcept = default;
+
+    Drawable & operator=(Drawable const & other) = delete;
+    Drawable & operator=(Drawable && other) = default;
 
     virtual ~Drawable();
 
     virtual void update(World const * w);
 
+    virtual void die(World const * w);
+
     #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     virtual sf::ConvexShape getShape(float scale);
     #endif
 
-    b2BodyDef const * getBodyDef() const ;
-    virtual void setBody(b2Body * body, World* w);
-    void attachJointAsB(b2JointDef &joint);
-    b2Body* getBody();
-    void setBody(b2Body* newVal);
-    virtual void die(World const * w);
-    b2Vec2 const & getPos() const;
-    b2Vec2 getForwardDirection() const;
+protected:
+    friend class World;
+
+    b2BodyDef const * getBodyDef() const;
+    b2Body * getBody();
+    virtual void setBody(b2Body * body, World * w = nullptr);
+
+    bool isColliding() const;
+
     bool isMarkedForDeath() const;
     void setMarkedForDeath(bool death);
-    bool isColliding() const;
+
+    virtual void onRemoveFromWorld(b2World * w);
+
+
+protected:
+    b2PolygonShape m_shape;
+    b2Body * m_body;
+    b2BodyDef m_bodyDef;
+    b2FixtureDef m_fixtureDef;
+
+private:
+    bool m_markedForDeath;
 
 protected:
     #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     sf::Color m_color;
-    #endif
-
-    b2PolygonShape m_shape;
-    b2Body* m_body;
-    b2BodyDef m_bodyDef;
-    b2FixtureDef m_fixtureDef;
-    bool m_markedForDeath;
 
     //Vector of vertices in CCW order.
-    std::vector<std::pair<float, float> > m_vertices;
-
+    std::vector<std::pair<float, float>> m_vertices;
+    #endif
 };

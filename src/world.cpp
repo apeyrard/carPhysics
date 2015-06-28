@@ -20,21 +20,26 @@
 World::World(
     int32 vIter, int32 pIter, Renderer* r, int32_t simulationRate, int32_t frameRate
 )
-    : m_renderer(r)
+    : m_world(nullptr)
     , m_velocityIterations(vIter)
     , m_positionIterations(pIter)
     , m_simulationRate(simulationRate)
+    , m_drawableList()
+    , m_requiredDrawables()
+    , m_renderer(r)
     , m_frameRate(frameRate)
 {
     b2Vec2 gravity(0.0f, 0.0f);
     m_world = new b2World(gravity);
 }
 #else
-World::World(int32 vIter, int32 pIter, int32_t simulationRate, int32_t frameRate)
-    : m_velocityIterations(vIter)
+World::World(int32 vIter, int32 pIter, int32_t simulationRate)
+    : m_world(nullptr)
+    , m_velocityIterations(vIter)
     , m_positionIterations(pIter)
     , m_simulationRate(simulationRate)
-    , m_frameRate(frameRate)
+    , m_drawableList()
+    , m_requiredDrawables()
 {
     b2Vec2 gravity(0.0f, 0.0f);
     m_world = new b2World(gravity);
@@ -43,6 +48,17 @@ World::World(int32 vIter, int32 pIter, int32_t simulationRate, int32_t frameRate
 
 World::~World()
 {
+    assert(m_world && "m_world is null");
+
+    for(auto d: m_drawableList)
+    {
+        assert(d && "Drawable is null");
+        d->onRemoveFromWorld(m_world);
+    }
+    m_drawableList.clear();
+
+    m_requiredDrawables.clear();
+
     delete(m_world);
 }
 
@@ -64,14 +80,6 @@ void World::addRequiredDrawable(std::shared_ptr<Drawable> drawable)
 void World::removeDrawables()
 {
     assert(m_world && "World is null");
-    for(auto it = m_drawableList.begin(); it != m_drawableList.end(); ++it)
-    {
-        assert((*it) && "Drawable is null");
-        if((*it)->isMarkedForDeath())
-        {
-            m_world->DestroyBody((*it)->getBody());
-        }
-    }
 
     auto it = std::remove_if(
         m_drawableList.begin(),
@@ -81,6 +89,7 @@ void World::removeDrawables()
 
     while(it != m_drawableList.end())
     {
+        (*it)->onRemoveFromWorld(m_world);
         m_drawableList.erase(it);
     }
 
@@ -181,8 +190,9 @@ void World::run()
     double totalTime = 0.0;
     auto oldTime = std::chrono::high_resolution_clock::now();
 
+    bool stop = false;
 
-    while(!m_stop && m_requiredDrawables.size() > 0)
+    while(!stop && m_requiredDrawables.size() > 0)
     {
         auto currentTime = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - oldTime);
@@ -219,7 +229,7 @@ void World::run()
         while(renderTimeAccumulator >= m_frameRate)
         {
             //std::cout << "rendering: " << renderTimeAccumulator << std::endl;
-            m_stop = !(m_renderer->update(m_drawableList));
+            stop = !(m_renderer->update(m_drawableList));
             renderTimeAccumulator -= m_frameRate;
 
             // Consume remaining time: no need to render the same thing
@@ -244,7 +254,7 @@ void World::run()
     assert(m_world && "World is null");
 
     int32_t updateCount = 0;
-    while(!m_stop && updateCount < 10000 && m_requiredDrawables.size() > 0)
+    while(updateCount < 10000 && m_requiredDrawables.size() > 0)
     {
         // Simulation
 

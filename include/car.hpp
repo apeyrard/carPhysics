@@ -29,10 +29,14 @@ public:
         Controller* controller = nullptr
     );
 
-    Car(Car const & other);
+    Car(Car const & other) = delete;
     Car(Car && other) noexcept = default;
 
+    Car & operator=(Car const & other) = delete;
+    Car & operator=(Car && other) = default;
+
     ~Car();
+
 
     b2Vec2 const & getInitPos() { return m_initPos; }
     float32 getInitAngle() { return m_initAngle; }
@@ -51,10 +55,19 @@ public:
     double getAngle() const;
     std::vector<float32> const & getDist() const;
 
+
+    std::shared_ptr<Car> cloneInitial() const;
+
     friend std::ostream & operator<<(std::ostream & os, Car const & car);
 
 protected:
     std::vector<float32> doRaycast(World const * w) const;
+
+    virtual void reset();
+
+private:
+    virtual void onRemoveFromWorld(b2World * w) override;
+
 
 protected:
     float32 m_width;
@@ -66,7 +79,7 @@ protected:
     b2Vec2 m_initPos;
     float32 m_initAngle;
 
-    std::vector<std::shared_ptr<Tire> > m_tireList;
+    std::vector<std::shared_ptr<Tire>> m_tireList;
 
     b2RevoluteJoint* m_fljoint;
     b2RevoluteJoint* m_frjoint;
@@ -79,6 +92,8 @@ protected:
     float32 m_power;
     std::vector<float32> m_dists;
     std::vector<float32> m_angles;
+
+    b2Vec2 m_position;
 
     Controller* m_controller;
 

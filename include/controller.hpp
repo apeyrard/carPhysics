@@ -5,7 +5,8 @@ class Car;
 class Controller
 {
 public:
-    Controller(){};
+    Controller() = default;
+
     // Must return the flags the car owning it should update to
-    virtual uint32_t updateFlags(Car* c) const =0;
+    virtual uint32_t updateFlags(Car * c) const = 0;
 };

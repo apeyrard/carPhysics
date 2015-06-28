@@ -26,6 +26,7 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     , m_power(0.0f)
     , m_dists()
     , m_angles(std::move(raycastAngles))
+    , m_position(initPos)
     , m_controller(controller)
     , m_nbMotorWheels(0)
 {
@@ -34,8 +35,8 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     #endif
 
     m_bodyDef.type = b2_dynamicBody;
-    m_bodyDef.position.Set(initPos.x, initPos.y);
-    m_bodyDef.angle = initAngle;
+    m_bodyDef.position.Set(m_initPos.x, m_initPos.y);
+    m_bodyDef.angle = m_initAngle;
 
     float32 halfWidth  = m_width / 2.0f;
     float32 halfHeight = m_height / 2.0f;
@@ -46,38 +47,15 @@ Car::Car(b2Vec2 const & initPos, float32 initAngle, float32 w, float32 h,
     m_fixtureDef.density = 1.0f;
     m_fixtureDef.friction = 0.3f;
 
+    #if CAR_PHYSICS_GRAPHIC_MODE_SFML
     // Creating vertices in CCW order
     m_vertices.reserve(4);
     m_vertices.push_back(std::make_pair(+halfWidth, -halfHeight));
     m_vertices.push_back(std::make_pair(-halfWidth, -halfHeight));
     m_vertices.push_back(std::make_pair(-halfWidth, +halfHeight));
     m_vertices.push_back(std::make_pair(+halfWidth, +halfHeight));
+    #endif
 }
-
-Car::Car(Car const & other):
-    Drawable(other),
-    m_width(other.m_width),
-    m_height(other.m_height),
-    m_flags(0),
-    m_raycastDist(other.m_raycastDist),
-    m_initPos(other.m_initPos),
-    m_initAngle(other.m_initAngle),
-    m_tireList(),       // Do not need copy: initialized in Car::setBody
-    m_fljoint(nullptr), // Do not need copy: initialized in Car::setBody
-    m_frjoint(nullptr), // Do not need copy: initialized in Car::setBody
-    m_steeringAngle(0.0), // Do not need copy: set in Car::update
-    m_maxSteeringAngle(other.m_maxSteeringAngle),
-    m_steeringRate(other.m_steeringRate),
-    m_acceleration(other.m_acceleration),
-    m_power(0.0), // Do not need copy: set in Car::update
-    m_dists(), // Do not need copy: set in Car::update
-    m_angles(other.m_angles),
-    m_controller(nullptr), // Do not need copy: initialized in Car::setController
-    m_nbMotorWheels(0) // Do not need copy: initialized in Car::setBody
-{
-
-}
-
 
 Car::~Car()
 {
@@ -184,7 +162,7 @@ void Car::update(World const * w)
     m_dists = doRaycast(w);
 
     // Updating flags with controller if it exists
-    if (m_controller != NULL)
+    if(m_controller != nullptr)
     {
         m_flags = m_controller->updateFlags(this);
     }
@@ -207,30 +185,30 @@ void Car::update(World const * w)
 
 
     // Making the car move and turn
-    if (m_flags & Car::FORWARD)
+    if(m_flags & Car::FORWARD)
     {
         for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
         {
             assert((*it) && "Tire is null");
-            (*it)->accelerate(m_power/m_nbMotorWheels);
+           (*it)->accelerate(m_power/m_nbMotorWheels);
         }
     }
 
-    if (m_flags & Car::BACKWARD)
+    if(m_flags & Car::BACKWARD)
     {
         for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
         {
             assert((*it) && "Tire is null");
-            (*it)->accelerate(-m_power/m_nbMotorWheels);
+           (*it)->accelerate(-m_power/m_nbMotorWheels);
         }
     }
 
-    if ((m_flags & Car::LEFT) && (m_steeringAngle > -m_maxSteeringAngle))
+    if((m_flags & Car::LEFT) &&(m_steeringAngle > -m_maxSteeringAngle))
     {
         m_steeringAngle -= m_steeringRate;
     }
 
-    if ((m_flags & Car::RIGHT) && (m_steeringAngle < m_maxSteeringAngle))
+    if((m_flags & Car::RIGHT) &&(m_steeringAngle < m_maxSteeringAngle))
     {
         m_steeringAngle += m_steeringRate;
     }
@@ -242,11 +220,14 @@ void Car::update(World const * w)
     m_frjoint->SetLimits(m_steeringAngle, m_steeringAngle);
 
     // SImulate friction on tires
-    for (auto it=m_tireList.begin(); it!=m_tireList.end();++it)
+    for(auto it=m_tireList.begin(); it!=m_tireList.end();++it)
     {
         assert((*it) && "Tire is null");
-        (*it)->simulateFriction();
+       (*it)->simulateFriction();
     }
+
+    // Update position
+    m_position = m_body->GetPosition();
 
     // Die if touching obstacle
     if(isColliding())
@@ -261,7 +242,7 @@ void Car::die(World const * w)
     for(auto it = m_tireList.begin(); it != m_tireList.end(); ++it)
     {
         assert((*it) && "Tire is null");
-       (*it)->die(w);
+      (*it)->die(w);
     }
 }
 
@@ -273,7 +254,7 @@ std::vector<float32> Car::doRaycast(World const * w) const
     std::vector<float32> result;
     for(auto it = m_angles.begin(); it != m_angles.end(); ++it)
     {
-        float32 angle = (*it) + m_body->GetAngle();
+        float32 angle =(*it) + m_body->GetAngle();
         b2Vec2 point1 = m_body->GetWorldCenter();
         b2Vec2 point2 = b2Vec2(std::cos(angle), std::sin(angle));
         point2 *= m_raycastDist;
@@ -295,8 +276,7 @@ std::vector<float32> Car::doRaycast(World const * w) const
 
 b2Vec2 Car::getPos() const
 {
-    assert(m_body && "Car has no body");
-    return m_body->GetPosition();
+    return m_position;
 }
 
 double Car::getAngle() const
@@ -310,13 +290,47 @@ std::vector<float32> const & Car::getDist() const
     return m_dists;
 }
 
+std::shared_ptr<Car> Car::cloneInitial() const
+{
+    std::shared_ptr<Car> car = std::make_shared<Car>(
+        m_initPos,
+        m_initAngle,
+        m_width,
+        m_height,
+        m_acceleration,
+        m_angles,
+        nullptr
+    );
+
+    return car;
+}
+
+void Car::reset()
+{
+    m_flags = 0;
+    m_steeringAngle = 0.0;
+    m_power = 0.0;
+    m_fljoint = nullptr;
+    m_frjoint = nullptr;
+    m_tireList.clear();
+    m_dists.clear();
+    m_nbMotorWheels = 0;
+}
+
+void Car::onRemoveFromWorld(b2World * w)
+{
+    Drawable::onRemoveFromWorld(w);
+    m_fljoint = nullptr;
+    m_frjoint = nullptr;
+}
+
 std::ostream & operator<<(std::ostream & os, Car const & car)
 {
     os << "Car {" << std::endl;
-    os << "  (w, h): (" << car.m_width << ", " << car.m_height << ")" << std::endl;
-    os << "  flags:   " << car.m_flags << std::endl;
-    os << "  raycast dist:   " << car.m_raycastDist << std::endl;
-    os << "  init pos:   (" << car.m_initPos.x << ", " << car.m_initPos.y << ")" << std::endl;
+    os << "  (w, h):(" << car.m_width << ", " << car.m_height << ")" << std::endl;
+    os << "  flags: " << car.m_flags << std::endl;
+    os << "  raycast dist: " << car.m_raycastDist << std::endl;
+    os << "  init pos: (" << car.m_initPos.x << ", " << car.m_initPos.y << ")" << std::endl;
     os << "  init angle: " << car.m_initAngle << std::endl;
     os << "  tires: {" << std::endl;
     for(auto const & t: car.m_tireList) os << "    " << t.get() << std::endl;
