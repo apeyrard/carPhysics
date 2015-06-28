@@ -254,7 +254,7 @@ void World::run()
     assert(m_world && "World is null");
 
     int32_t updateCount = 0;
-    while(updateCount < 10000 && m_requiredDrawables.size() > 0)
+    while(updateCount < 1000 && m_requiredDrawables.size() > 0)
     {
         // Simulation
 
