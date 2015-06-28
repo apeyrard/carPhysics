@@ -117,6 +117,18 @@ void Car::update(World const * w)
         m_steeringAngle += m_def.steeringRate;
     }
 
+    if(!(m_flags & Car::RIGHT) && !(m_flags & Car::LEFT))
+    {
+        if (m_steeringAngle < 0)
+        {
+            m_steeringAngle += m_def.steeringRate;
+        }
+        else if (m_steeringAngle > 0)
+        {
+            m_steeringAngle -= m_def.steeringRate;
+        }
+    }
+    
     assert(m_fljoint && "m_fljoint is null");
     assert(m_frjoint && "m_frjoint is null");
 
