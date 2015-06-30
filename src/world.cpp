@@ -156,8 +156,8 @@ void World::randomize(uint32_t width, uint32_t height, uint32_t nbObstacles, uin
         std::shared_ptr<StaticBox> box = std::make_shared<StaticBox>(
             b2Vec2(widthDistribution(rng), heightDistribution(rng)),
             angleDistribution(rng),
-            sizeDistribution(rng),
-            sizeDistribution(rng)
+            std::abs(sizeDistribution(rng)),
+            std::abs(sizeDistribution(rng))
         );
         addDrawable(box);
     }
@@ -254,7 +254,7 @@ void World::run()
     assert(m_world && "World is null");
 
     int32_t updateCount = 0;
-    while(updateCount < 1000 && m_requiredDrawables.size() > 0)
+    while(updateCount < 5000 && m_requiredDrawables.size() > 0)
     {
         // Simulation
 

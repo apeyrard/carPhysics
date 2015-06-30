@@ -60,6 +60,11 @@ b2Vec2 Car::getPos() const
     return m_position;
 }
 
+b2Vec2 Car::getInitPos() const
+{
+    return m_def.initPos;
+}
+
 double Car::getAngle() const
 {
     return m_body->GetAngle();
@@ -119,7 +124,11 @@ void Car::update(World const * w)
 
     if(!(m_flags & Car::RIGHT) && !(m_flags & Car::LEFT))
     {
-        if (m_steeringAngle < 0)
+        if (m_steeringAngle < m_def.steeringRate && m_steeringAngle > -m_def.steeringRate)
+        {
+            m_steeringAngle = 0;
+        }
+        else if (m_steeringAngle < 0)
         {
             m_steeringAngle += m_def.steeringRate;
         }

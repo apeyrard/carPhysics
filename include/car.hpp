@@ -58,6 +58,8 @@ public:
     CarDef const & getDefiniton() const;
 
     b2Vec2 getPos() const;
+    b2Vec2 getInitPos() const;
+
     double getAngle() const;
     std::vector<float32> const & getCollisionDists() const;
 
